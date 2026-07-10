@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
 import AgentConsole from './AgentConsole'
+import { AccessProvider, useAccess, useGatedAction } from './access/AccessContext'
+import PaywallModal from './access/PaywallModal'
 import { copyText } from './copy'
 import HubBuilder from './HubBuilder'
 import Reveal from './Reveal'
+import UpsideGate from './UpsideGate'
 import {
   API_DOCS_URL,
   COMMUNITY_URL,
@@ -24,6 +27,9 @@ happens only through a separate, regulated offering for eligible contributors.`
 /* ---------------------------------- nav ---------------------------------- */
 
 function Nav() {
+  const { hasAccess, email } = useAccess()
+  const runGated = useGatedAction()
+
   return (
     <nav className="fixed inset-x-0 top-0 z-50 border-b border-edge/60 bg-ink/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
@@ -38,17 +44,20 @@ function Nav() {
           <a href="#earn" className="transition hover:text-bright">Earn</a>
           <a href="#build" className="transition hover:text-bright">Build</a>
           <a href="#agents" className="transition hover:text-bright">For agents</a>
+          <a href="#upside" className="transition hover:text-bright">Upside gate</a>
           <a href="#playbook" className="transition hover:text-bright">Playbook</a>
           <a href={COMMUNITY_URL} target="_blank" rel="noreferrer" className="transition hover:text-bright">Community</a>
         </div>
-        <a
-          href={WIZARD_URL}
-          target="_blank"
-          rel="noreferrer"
+        {hasAccess ? (
+          <span className="hidden font-mono text-xs text-up md:inline">{email}</span>
+        ) : null}
+        <button
+          type="button"
+          onClick={() => runGated(() => window.open(WIZARD_URL, '_blank', 'noopener,noreferrer'))}
           className="rounded-lg bg-up px-4 py-2 text-sm font-semibold text-ink transition hover:brightness-110"
         >
-          Launch your hub
-        </a>
+          {hasAccess ? 'Launch your hub' : 'Get hub access'}
+        </button>
       </div>
     </nav>
   )
@@ -102,6 +111,7 @@ function RotatingHeadline() {
 }
 
 function Hero() {
+  const runGated = useGatedAction()
   return (
     <header id="top" className="relative overflow-hidden pt-36 pb-16">
       <div className="grid-bg absolute inset-0" />
@@ -120,14 +130,13 @@ function Hero() {
             helps it build and grow, and lets its best contributors share in the value they create.
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-4">
-            <a
-              href={WIZARD_URL}
-              target="_blank"
-              rel="noreferrer"
+            <button
+              type="button"
+              onClick={() => runGated(() => window.open(WIZARD_URL, '_blank', 'noopener,noreferrer'))}
               className="glow-up rounded-xl bg-up px-6 py-3.5 font-semibold text-ink transition hover:brightness-110"
             >
               Launch your Upside Hub →
-            </a>
+            </button>
             <a
               href={COMMUNITY_URL}
               target="_blank"
@@ -593,6 +602,7 @@ function Playbook() {
 /* --------------------------------- launch -------------------------------- */
 
 function Launch() {
+  const runGated = useGatedAction()
   return (
     <section className="mx-auto max-w-6xl px-6 pb-24">
       <Reveal>
@@ -607,14 +617,13 @@ function Launch() {
               No code required — full API underneath.
             </p>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-              <a
-                href={WIZARD_URL}
-                target="_blank"
-                rel="noreferrer"
+              <button
+                type="button"
+                onClick={() => runGated(() => window.open(WIZARD_URL, '_blank', 'noopener,noreferrer'))}
                 className="rounded-xl bg-up px-8 py-4 text-lg font-bold text-ink transition hover:brightness-110"
               >
                 Start the wizard →
-              </a>
+              </button>
               <a
                 href={COMMUNITY_URL}
                 target="_blank"
@@ -663,7 +672,7 @@ function Footer() {
   )
 }
 
-export default function App() {
+function Site() {
   return (
     <main>
       <Nav />
@@ -674,9 +683,19 @@ export default function App() {
       <Earn />
       <HubBuilder />
       <ForAgents />
+      <UpsideGate />
       <Playbook />
       <Launch />
       <Footer />
     </main>
+  )
+}
+
+export default function App() {
+  return (
+    <AccessProvider>
+      <PaywallModal />
+      <Site />
+    </AccessProvider>
   )
 }

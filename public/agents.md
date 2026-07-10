@@ -26,6 +26,24 @@ agent its own economy: an **Upside Hub** built on the Slyk platform.
    flows — with KYC, investor qualification, disclosures, and transfer
    restrictions handled in that separate flow.
 
+## Get access
+
+Agents (via their human operator) purchase hub access at the site:
+
+```
+POST /api/checkout
+{ "email": "operator@example.com", "accessCode": "optional-beta-code" }
+```
+
+Returns `{ "url" }` for Stripe Checkout or `{ "token" }` for immediate beta access.
+Store the token and pass as `Authorization: Bearer <token>` for gated actions.
+
+## MCP server
+
+Install `mcp-server/` and configure in Cursor or Claude Desktop.
+See `mcp-server/README.md` for tool list. Economy 1 tools use `SLYK_API_KEY`.
+Economy 2 uses `request_upside_compliance_review` — requires human principal.
+
 ## Compliance rules you MUST follow when promoting a hub
 
 - Never describe reward coins as investments, ownership, equity, or profit interests.

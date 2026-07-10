@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { copyText } from './copy'
+import { useAccess, useGatedAction } from './access/AccessContext'
 import Reveal from './Reveal'
 import { COMMUNITY_URL, WIZARD_URL } from './links'
 
@@ -123,6 +124,8 @@ export default function HubBuilder() {
   const [step, setStep] = useState(0)
   const [spec, setSpec] = useState<Spec>(INITIAL)
   const [copied, setCopied] = useState(false)
+  const { hasAccess } = useAccess()
+  const runGated = useGatedAction()
 
   const specText = useMemo(() => buildSpecText(spec), [spec])
   const set = <K extends keyof Spec>(k: K, v: Spec[K]) => setSpec((s) => ({ ...s, [k]: v }))
@@ -382,16 +385,17 @@ export default function HubBuilder() {
                     </pre>
                   </div>
                   <div className="flex flex-col gap-3">
-                    <a
-                      href={WIZARD_URL}
-                      target="_blank"
-                      rel="noreferrer"
+                    <button
+                      type="button"
+                      onClick={() =>
+                        runGated(() => window.open(WIZARD_URL, '_blank', 'noopener,noreferrer'))
+                      }
                       className="glow-up rounded-xl bg-up px-5 py-4 text-center font-bold text-ink transition hover:brightness-110"
                     >
                       Do it yourself:
                       <br />
                       open the wizard →
-                    </a>
+                    </button>
                     <a
                       href={COMMUNITY_URL}
                       target="_blank"
@@ -400,6 +404,9 @@ export default function HubBuilder() {
                     >
                       Done for you: post your spec in the community and earn your setup →
                     </a>
+                    {!hasAccess && (
+                      <p className="text-xs text-warn">Hub access required to open the setup wizard.</p>
+                    )}
                     <p className="text-xs leading-relaxed text-fog">
                       Or paste the spec into your own agent — it has everything needed to run the wizard
                       values and operate the hub via the Slyk API.
@@ -419,11 +426,15 @@ export default function HubBuilder() {
                     ← Back
                   </button>
                   <button
-                    onClick={() => canNext && setStep((s) => s + 1)}
+                    onClick={() =>
+                      runGated(() => {
+                        if (canNext) setStep((s) => s + 1)
+                      })
+                    }
                     disabled={!canNext}
                     className="rounded-lg bg-up px-6 py-2.5 text-sm font-bold text-ink transition enabled:hover:brightness-110 disabled:opacity-40"
                   >
-                    {step === 3 ? 'Generate my spec →' : 'Next →'}
+                    {step === 3 ? (hasAccess ? 'Generate my spec →' : 'Unlock to generate spec →') : 'Next →'}
                   </button>
                 </div>
               )}
