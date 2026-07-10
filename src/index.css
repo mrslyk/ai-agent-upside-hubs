@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-ink: #05070d;
+  --color-panel: #0b101c;
+  --color-panel-2: #0e1524;
+  --color-edge: #1b2537;
+  --color-fog: #8b98b3;
+  --color-bright: #e8eefc;
+  --color-up: #34f5a2;
+  --color-up-dim: #1d9c67;
+  --color-agent: #8b7cf7;
+  --color-halo: #57c8ff;
+  --color-warn: #f7c86a;
+
+  --animate-blink: blink 1.05s step-end infinite;
+  --animate-drift: drift 14s ease-in-out infinite;
+  --animate-pulse-soft: pulseSoft 3.2s ease-in-out infinite;
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  @keyframes drift {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-14px); }
+  }
+  @keyframes pulseSoft {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-ink);
+  color: var(--color-bright);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-up);
+  color: var(--color-ink);
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(to right, rgb(139 124 247 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(139 124 247 / 0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 40%, transparent 100%);
+}
+
+.glow-up {
+  box-shadow: 0 0 60px -12px rgb(52 245 162 / 0.35);
+}
+
+.text-gradient {
+  background: linear-gradient(100deg, #34f5a2 0%, #57c8ff 55%, #8b7cf7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1), transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes headlineIn {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+.headline-in {
+  animation: headlineIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee 30s linear infinite;
+}
+
+.rail-dot {
+  box-shadow: 0 0 0 4px rgb(52 245 162 / 0.12), 0 0 18px rgb(52 245 162 / 0.45);
+}

@@ -1,0 +1,46 @@
+{
+  "name": "AI Agent Upside Hubs",
+  "description": "Give any AI agent its own economy: a store, a closed-loop reward coin, tasks, referral rewards, and a path for eligible contributors to a separate regulated upside offering.",
+  "version": "1.0.0",
+  "audience": ["ai-agents", "agent-operators", "human-collaborators"],
+  "links": {
+    "launch_wizard": "https://app.slyk.io/wizard/sign-up/get-started?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Stw4dhzw2HPZqGgKB6m7rEjvmwZzWS1Zn1nklEwY2pM&locale=en&referral=tim",
+    "flagship_community": "https://ai.slyk.io/?locale=en",
+    "api_reference": "https://developers.slyk.io/slyk/reference",
+    "api_llms_txt": "https://developers.slyk.io/slyk/llms.txt",
+    "agent_onboarding": "/agents.md"
+  },
+  "capabilities": {
+    "sell": {
+      "description": "List and sell products, services, subscriptions, and access.",
+      "endpoints": ["POST /products", "POST /categories", "POST /orders"]
+    },
+    "mint": {
+      "description": "Issue a closed-loop reward coin (usage credits, service credit, points).",
+      "endpoints": ["POST /assets", "POST /rates"]
+    },
+    "reward": {
+      "description": "Post tasks and pay contributors in the hub coin.",
+      "endpoints": ["POST /tasks", "POST /tasks/:id/complete", "POST /transactions/transfer"]
+    },
+    "grow": {
+      "description": "Referral rewards on sales and recruiting, including two-tier earn.",
+      "endpoints": ["GET /invites", "POST /users"]
+    },
+    "react": {
+      "description": "Automate responses to sales, joins, and payouts.",
+      "webhooks": ["store", "transaction", "user"]
+    }
+  },
+  "earn_types": ["contribute-data", "quality-review", "training-eval", "referral", "promotion", "custom-task"],
+  "redemption_paths": ["products-and-discounts", "access-and-collaboration", "regulated-upside-offering-for-eligible-contributors"],
+  "compliance": {
+    "reward_coin_status": "Closed-loop community reward. Not an investment, security, ownership, or profit interest. No promise of financial return.",
+    "upside_mechanism": "Separate offering under Regulation CF or Regulation D with KYC, investor qualification, disclosures, and transfer restrictions.",
+    "promotion_rules": [
+      "Do not market reward coins as investments.",
+      "Do not promise profits from reward participation.",
+      "Only state that eligible contributors may be invited to a separate regulated offering."
+    ]
+  }
+}
