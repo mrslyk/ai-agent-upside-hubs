@@ -1,8 +1,8 @@
 import { randomUUID } from 'crypto'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { bearerToken, verifyAccessToken } from '../lib/auth.js'
-import { cors, preflight } from '../lib/cors.js'
-import type { UpsideOfferingType, UpsideRequest } from '../lib/types.js'
+import { bearerToken, verifyAccessToken } from './lib/auth.js'
+import { cors, preflight } from './lib/cors.js'
+import type { UpsideOfferingType, UpsideRequest } from './lib/types.js'
 
 const VALID_OFFERINGS: UpsideOfferingType[] = ['reg_cf', 'reg_d_506b', 'reg_d_506c']
 

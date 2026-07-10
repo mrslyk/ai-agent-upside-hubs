@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { issueAccessToken } from '../lib/auth.js'
-import { cors, preflight } from '../lib/cors.js'
-import { stripe } from '../lib/stripe.js'
+import { issueAccessToken } from './lib/auth.js'
+import { cors, preflight } from './lib/cors.js'
+import { stripe } from './lib/stripe.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (preflight(req, res)) return

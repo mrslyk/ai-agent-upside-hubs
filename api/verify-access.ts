@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { bearerToken, verifyAccessToken } from '../lib/auth.js'
-import { cors, preflight } from '../lib/cors.js'
+import { bearerToken, verifyAccessToken } from './lib/auth.js'
+import { cors, preflight } from './lib/cors.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (preflight(req, res)) return
