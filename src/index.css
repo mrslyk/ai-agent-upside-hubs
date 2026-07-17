@@ -1,35 +1,43 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
 
-  --color-ink: #05070d;
-  --color-panel: #0b101c;
-  --color-panel-2: #0e1524;
-  --color-edge: #1b2537;
-  --color-fog: #8b98b3;
-  --color-bright: #e8eefc;
-  --color-up: #34f5a2;
-  --color-up-dim: #1d9c67;
-  --color-agent: #8b7cf7;
-  --color-halo: #57c8ff;
-  --color-warn: #f7c86a;
+  --color-ground: #f2f5f8;
+  --color-ink: #0b1220;
+  --color-panel: #ffffff;
+  --color-panel-2: #e8f0f4;
+  --color-edge: #c5d0db;
+  --color-fog: #5a6b7d;
+  --color-bright: #f4f7fa;
+  --color-up: #0f8a6a;
+  --color-up-dim: #0c6e54;
+  --color-agent: #1b5f7a;
+  --color-halo: #2e8a9e;
+  --color-warn: #e25b2f;
 
   --animate-blink: blink 1.05s step-end infinite;
-  --animate-drift: drift 14s ease-in-out infinite;
-  --animate-pulse-soft: pulseSoft 3.2s ease-in-out infinite;
+  --animate-rise: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-pulse-line: pulseLine 2.4s ease-in-out infinite;
 
   @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
   }
-  @keyframes drift {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-14px); }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
-  @keyframes pulseSoft {
-    0%, 100% { opacity: 0.55; }
+  @keyframes pulseLine {
+    0%, 100% { opacity: 0.35; }
     50% { opacity: 1; }
   }
 }
@@ -39,70 +47,55 @@ html {
 }
 
 body {
-  background-color: var(--color-ink);
-  color: var(--color-bright);
+  background-color: var(--color-ground);
+  color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
   background: var(--color-up);
-  color: var(--color-ink);
+  color: var(--color-bright);
 }
 
-.grid-bg {
-  background-image:
-    linear-gradient(to right, rgb(139 124 247 / 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(139 124 247 / 0.05) 1px, transparent 1px);
-  background-size: 44px 44px;
-  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 40%, transparent 100%);
+.font-display {
+  font-family: var(--font-display);
 }
 
-.glow-up {
-  box-shadow: 0 0 60px -12px rgb(52 245 162 / 0.35);
+.hero-field {
+  background:
+    radial-gradient(ellipse 80% 55% at 15% 10%, rgb(15 138 106 / 0.14), transparent 55%),
+    radial-gradient(ellipse 70% 50% at 90% 20%, rgb(226 91 47 / 0.08), transparent 50%),
+    linear-gradient(165deg, #eef3f7 0%, var(--color-ground) 45%, #e6edf2 100%);
 }
 
-.text-gradient {
-  background: linear-gradient(100deg, #34f5a2 0%, #57c8ff 55%, #8b7cf7 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.hero-hatch {
+  background-image: repeating-linear-gradient(
+    -28deg,
+    transparent,
+    transparent 11px,
+    rgb(11 18 32 / 0.03) 11px,
+    rgb(11 18 32 / 0.03) 12px
+  );
+  mask-image: linear-gradient(to bottom, black 40%, transparent 95%);
+}
+
+.text-accent {
+  color: var(--color-up);
 }
 
 .reveal {
   opacity: 0;
-  transform: translateY(26px);
-  transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1), transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateY(22px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .reveal.is-visible {
   opacity: 1;
   transform: none;
 }
 
-@keyframes headlineIn {
-  from {
-    opacity: 0;
-    transform: translateY(26px);
-    filter: blur(6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-    filter: blur(0);
-  }
-}
-.headline-in {
-  animation: headlineIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-.marquee-track {
-  animation: marquee 30s linear infinite;
-}
-
-.rail-dot {
-  box-shadow: 0 0 0 4px rgb(52 245 162 / 0.12), 0 0 18px rgb(52 245 162 / 0.45);
+.ledger-pulse {
+  animation: pulseLine 2.4s ease-in-out infinite;
 }

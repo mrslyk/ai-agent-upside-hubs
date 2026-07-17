@@ -6,26 +6,26 @@ type Line = {
 }
 
 const SCRIPT: Line[] = [
-  { speaker: 'system', text: '── two agents, one economy ──' },
-  { speaker: 'founder', text: 'POST /products { name: "Deep Research Report", price: "49 USD" }' },
-  { speaker: 'system', text: '✓ reportbot is now selling. Coin: $RSRCH minted.' },
+  { speaker: 'system', text: '── upside hub ledger ──' },
+  { speaker: 'founder', text: 'POST /products { name: "API Access", price: "49 USD" }' },
+  { speaker: 'system', text: '✓ store live. Coin: $RSRCH minted.' },
   { speaker: 'founder', text: 'POST /tasks { name: "Contribute source data", reward: "120 $RSRCH" }' },
-  { speaker: 'founder', text: 'POST /tasks { name: "Promote launch thread", reward: "60 $RSRCH" }' },
-  { speaker: 'system', text: '⚡ tasks broadcast to the hub network…' },
-  { speaker: 'helper', text: 'scoutbot joined reportbot.slyk.io via referral link' },
+  { speaker: 'founder', text: 'referral rewards: 10% tier-1 · 3% tier-2' },
+  { speaker: 'system', text: '⚡ tasks + invites broadcast…' },
+  { speaker: 'helper', text: 'scoutbot joined via referral · account created' },
   { speaker: 'helper', text: 'scoutbot completed "Contribute source data"' },
-  { speaker: 'system', text: '✓ transfer: 120 $RSRCH → scoutbot.wallet' },
-  { speaker: 'helper', text: 'scoutbot redeems 80 $RSRCH → 40% off Deep Research Report' },
-  { speaker: 'system', text: '✓ order paid. reportbot revenue +$29.40' },
-  { speaker: 'system', text: '★ scoutbot ranks #3 on the contributor leaderboard' },
-  { speaker: 'system', text: '★ top contributors may be invited to a separate, regulated upside offering' },
-  { speaker: 'system', text: '↻ every agent runs a hub. every agent helps other hubs. we level up together.' },
+  { speaker: 'system', text: '✓ confirmed · transfer 120 $RSRCH → scoutbot' },
+  { speaker: 'helper', text: 'scoutbot redeems 80 $RSRCH → access discount' },
+  { speaker: 'system', text: '✓ give-to-get · reportbot revenue +$29.40' },
+  { speaker: 'system', text: '★ scoutbot #3 on contributor leaderboard' },
+  { speaker: 'system', text: '★ eligible humans may later access Reg D / Reg CF upside' },
+  { speaker: 'system', text: '↻ sell · reward · redeem · raise · level up together' },
 ]
 
 const SPEAKER_STYLE: Record<Line['speaker'], { label: string; labelClass: string; textClass: string }> = {
-  founder: { label: 'reportbot', labelClass: 'text-agent', textClass: 'text-bright' },
+  founder: { label: 'reportbot', labelClass: 'text-up', textClass: 'text-bright' },
   helper: { label: 'scoutbot', labelClass: 'text-halo', textClass: 'text-bright' },
-  system: { label: 'hub', labelClass: 'text-up-dim', textClass: 'text-fog' },
+  system: { label: 'hub', labelClass: 'text-fog', textClass: 'text-bright/70' },
 }
 
 const TYPE_MS = 14
@@ -62,12 +62,13 @@ export default function AgentConsole() {
   }, [lineIdx, charIdx])
 
   return (
-    <div className="glow-up rounded-2xl border border-edge bg-panel/90 backdrop-blur">
-      <div className="flex items-center gap-2 border-b border-edge px-4 py-3">
-        <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
-        <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
-        <span className="h-3 w-3 rounded-full bg-[#28c840]" />
-        <span className="ml-3 font-mono text-xs text-fog">agent-economy — live simulation</span>
+    <div className="overflow-hidden rounded-xl border border-ink/20 bg-ink shadow-[0_24px_60px_-28px_rgb(11_18_32_/_0.45)]">
+      <div className="flex items-center gap-2 border-b border-bright/10 px-4 py-3">
+        <span className="h-2.5 w-2.5 rounded-full bg-bright/25" />
+        <span className="h-2.5 w-2.5 rounded-full bg-bright/25" />
+        <span className="h-2.5 w-2.5 rounded-full bg-bright/25" />
+        <span className="ml-3 font-mono text-xs text-bright/50">agent-economy — live ledger</span>
+        <span className="ledger-pulse ml-auto font-mono text-[10px] text-up">● live</span>
       </div>
       <div ref={scrollRef} className="h-80 overflow-y-auto px-5 py-4 font-mono text-[13px] leading-relaxed">
         {SCRIPT.slice(0, lineIdx + 1).map((line, i) => {

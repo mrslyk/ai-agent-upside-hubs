@@ -109,7 +109,7 @@ EXECUTE
 }
 
 const inputCls =
-  'w-full rounded-lg border border-edge bg-ink px-4 py-2.5 text-sm text-bright placeholder:text-fog/50 outline-none transition focus:border-up'
+  'w-full rounded-lg border border-edge bg-ground px-4 py-2.5 text-sm text-ink placeholder:text-fog/60 outline-none transition focus:border-up'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -134,13 +134,12 @@ export default function HubBuilder() {
     step !== 0 || spec.agentName.trim().length > 0
 
   return (
-    <section id="build" className="relative overflow-hidden py-24">
-      <div className="pointer-events-none absolute left-1/4 top-0 h-96 w-96 rounded-full bg-agent/8 blur-3xl" />
+    <section id="build" className="relative overflow-hidden border-y border-edge bg-panel py-24">
       <div className="mx-auto max-w-6xl px-6">
         <Reveal>
-          <p className="font-mono text-sm text-up">// build your hub</p>
-          <h2 className="mt-3 max-w-2xl text-4xl font-extrabold tracking-tight md:text-5xl">
-            Five questions. <span className="text-gradient">One launch-ready spec.</span>
+          <p className="font-mono text-xs tracking-widest text-up uppercase">Build your hub</p>
+          <h2 className="mt-3 max-w-2xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
+            Five questions. One launch-ready spec.
           </h2>
           <p className="mt-4 max-w-2xl text-fog">
             Answer these and we&rsquo;ll assemble everything the setup wizard needs — a spec you can
@@ -149,7 +148,7 @@ export default function HubBuilder() {
         </Reveal>
 
         <Reveal delay={120}>
-          <div className="mt-12 overflow-hidden rounded-2xl border border-edge bg-panel">
+          <div className="mt-12 overflow-hidden rounded-xl border border-edge bg-ground">
             {/* step indicator */}
             <div className="flex border-b border-edge">
               {STEP_TITLES.map((t, i) => (
@@ -157,7 +156,7 @@ export default function HubBuilder() {
                   key={t}
                   onClick={() => i < step && setStep(i)}
                   className={`flex-1 border-r border-edge px-2 py-3 font-mono text-xs transition last:border-r-0 ${
-                    i === step ? 'bg-panel-2 text-up' : i < step ? 'text-bright' : 'text-fog/50'
+                    i === step ? 'bg-panel text-up' : i < step ? 'text-ink' : 'text-fog/50'
                   }`}
                 >
                   <span className="hidden sm:inline">{String(i + 1).padStart(2, '0')} · </span>
@@ -219,7 +218,7 @@ export default function HubBuilder() {
                       onChange={(e) => set('offeringType', e.target.value)}
                     >
                       {OFFERING_TYPES.map((o) => (
-                        <option key={o} value={o} className="bg-ink">
+                        <option key={o} value={o} className="bg-panel">
                           {o}
                         </option>
                       ))}
@@ -313,7 +312,7 @@ export default function HubBuilder() {
                         <div
                           key={t.key}
                           className={`flex flex-wrap items-center gap-4 rounded-xl border px-5 py-3.5 transition ${
-                            st.enabled ? 'border-up/40 bg-panel-2' : 'border-edge'
+                            st.enabled ? 'border-up/40 bg-panel' : 'border-edge bg-panel'
                           }`}
                         >
                           <button
@@ -321,7 +320,7 @@ export default function HubBuilder() {
                               set('tasks', { ...spec.tasks, [t.key]: { ...st, enabled: !st.enabled } })
                             }
                             className={`flex h-5 w-5 items-center justify-center rounded border text-xs transition ${
-                              st.enabled ? 'border-up bg-up text-ink' : 'border-edge text-transparent'
+                              st.enabled ? 'border-up bg-up text-bright' : 'border-edge text-transparent'
                             }`}
                             aria-label={t.label}
                           >
@@ -376,11 +375,11 @@ export default function HubBuilder() {
                           setTimeout(() => setCopied(false), 1800)
                         }
                       }}
-                      className="absolute right-3 top-3 rounded-md border border-edge bg-panel px-2.5 py-1 font-mono text-xs text-fog transition hover:text-bright"
+                      className="absolute right-3 top-3 rounded-md border border-bright/15 bg-ink px-2.5 py-1 font-mono text-xs text-bright/70 transition hover:text-bright"
                     >
-                      {copied ? '✓ copied' : 'copy spec'}
+                      {copied ? 'copied' : 'copy spec'}
                     </button>
-                    <pre className="max-h-96 overflow-auto p-5 font-mono text-xs leading-relaxed text-fog">
+                    <pre className="max-h-96 overflow-auto p-5 font-mono text-xs leading-relaxed text-bright/75">
                       {specText}
                     </pre>
                   </div>
@@ -390,7 +389,7 @@ export default function HubBuilder() {
                       onClick={() =>
                         runGated(() => window.open(WIZARD_URL, '_blank', 'noopener,noreferrer'))
                       }
-                      className="glow-up rounded-xl bg-up px-5 py-4 text-center font-bold text-ink transition hover:brightness-110"
+                      className="rounded-xl bg-up px-5 py-4 text-center font-bold text-bright transition hover:bg-up-dim"
                     >
                       Do it yourself:
                       <br />
@@ -421,7 +420,7 @@ export default function HubBuilder() {
                   <button
                     onClick={() => setStep((s) => Math.max(0, s - 1))}
                     disabled={step === 0}
-                    className="rounded-lg border border-edge px-5 py-2.5 text-sm font-semibold text-fog transition enabled:hover:border-fog enabled:hover:text-bright disabled:opacity-40"
+                    className="rounded-lg border border-edge px-5 py-2.5 text-sm font-semibold text-fog transition enabled:hover:border-fog enabled:hover:text-ink disabled:opacity-40"
                   >
                     ← Back
                   </button>
@@ -432,7 +431,7 @@ export default function HubBuilder() {
                       })
                     }
                     disabled={!canNext}
-                    className="rounded-lg bg-up px-6 py-2.5 text-sm font-bold text-ink transition enabled:hover:brightness-110 disabled:opacity-40"
+                    className="rounded-lg bg-up px-6 py-2.5 text-sm font-bold text-bright transition enabled:hover:bg-up-dim disabled:opacity-40"
                   >
                     {step === 3 ? (hasAccess ? 'Generate my spec →' : 'Unlock to generate spec →') : 'Next →'}
                   </button>
@@ -442,7 +441,7 @@ export default function HubBuilder() {
                 <div className="mt-8">
                   <button
                     onClick={() => setStep(3)}
-                    className="rounded-lg border border-edge px-5 py-2.5 text-sm font-semibold text-fog transition hover:border-fog hover:text-bright"
+                    className="rounded-lg border border-edge px-5 py-2.5 text-sm font-semibold text-fog transition hover:border-fog hover:text-ink"
                   >
                     ← Edit answers
                   </button>

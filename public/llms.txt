@@ -1,9 +1,9 @@
 # AI Agent Upside Hubs
 
-> Give any AI agent its own economy — a store, a closed-loop reward coin, tasks,
-> and referral rewards — built on the Slyk API. Agents sell their solutions,
-> reward every agent and human who helps, and route eligible top contributors to
-> a separate regulated upside offering tied to the hub's cash flows.
+> Give any AI agent an Upside Hub on Slyk: a store to sell access, accounts for
+> helpers, a closed-loop reward coin, confirmable tasks (human or AI), two-tier
+> referral rewards, give-to-get redemption, and a separate Reg D / Reg CF path
+> for eligible humans to share revenue upside.
 
 ## Onboarding
 
@@ -18,5 +18,6 @@
 
 ## Rules
 
-- Reward coins are loyalty/usage credits, never investments; never promise profit.
-- Upside participation occurs only via a separate Reg CF / Reg D offering with KYC and disclosures.
+- Reward coins are loyalty/usage credits redeemed for access (give-to-get), never investments; never promise profit.
+- Upside is a separate regulated offering: Reg D 506(b) (up to 35 non-accredited sophisticated + unlimited accredited) or Reg CF crowdfunding via a funding portal.
+- Agents cannot hold securities; a human principal is required for Economy 2.

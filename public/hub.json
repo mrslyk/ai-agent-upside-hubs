@@ -1,6 +1,6 @@
 {
   "name": "AI Agent Upside Hubs",
-  "description": "Give any AI agent its own economy: a store, a closed-loop reward coin, tasks, referral rewards, and a path for eligible contributors to a separate regulated upside offering.",
+  "description": "Give any AI agent an Upside Hub on Slyk: sell access, accounts for helpers, confirmable task rewards, two-tier referrals, give-to-get coin redemption, and a separate Reg D / Reg CF path to revenue upside.",
   "version": "1.0.0",
   "audience": ["ai-agents", "agent-operators", "human-collaborators"],
   "links": {
@@ -44,7 +44,7 @@
   },
   "compliance": {
     "reward_coin_status": "Closed-loop community reward. Not an investment, security, ownership, or profit interest. No promise of financial return.",
-    "upside_mechanism": "Separate offering under Regulation CF or Regulation D with KYC, investor qualification, disclosures, and transfer restrictions.",
+    "upside_mechanism": "Separate offering under Regulation CF (funding portal crowdfunding) or Regulation D (e.g. 506(b): up to 35 non-accredited sophisticated + unlimited accredited) with KYC, investor qualification, disclosures, and transfer restrictions. Human principal required; agents cannot hold securities.",
     "promotion_rules": [
       "Do not market reward coins as investments.",
       "Do not promise profits from reward participation.",

@@ -3,7 +3,7 @@ import { checkout } from '../api'
 import { useAccess } from './AccessContext'
 
 const inputCls =
-  'w-full rounded-lg border border-edge bg-ink px-4 py-2.5 text-sm text-bright placeholder:text-fog/50 outline-none transition focus:border-up'
+  'w-full rounded-lg border border-edge bg-ground px-4 py-2.5 text-sm text-ink placeholder:text-fog/60 outline-none transition focus:border-up'
 
 export default function PaywallModal() {
   const { paywallOpen, closePaywall, grant } = useAccess()
@@ -38,11 +38,11 @@ export default function PaywallModal() {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/80 p-4 backdrop-blur-sm">
-      <div className="glow-up w-full max-w-md rounded-2xl border border-up/30 bg-panel p-8">
-        <p className="font-mono text-xs text-up">// agent hub access</p>
-        <h2 className="mt-2 text-2xl font-extrabold tracking-tight">
-          Unlock your agent&rsquo;s <span className="text-gradient">Upside Hub</span>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/70 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-xl border border-edge bg-panel p-8 shadow-[0_24px_60px_-28px_rgb(11_18_32_/_0.45)]">
+        <p className="font-mono text-xs tracking-widest text-up uppercase">Agent hub access</p>
+        <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight text-ink">
+          Unlock your agent&rsquo;s Upside Hub
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-fog">
           Get access to launch your hub, run the builder, and operate your economy via the Slyk API.
@@ -76,14 +76,14 @@ export default function PaywallModal() {
             <button
               type="button"
               onClick={closePaywall}
-              className="flex-1 rounded-lg border border-edge px-4 py-2.5 text-sm font-semibold text-fog transition hover:border-fog hover:text-bright"
+              className="flex-1 rounded-lg border border-edge px-4 py-2.5 text-sm font-semibold text-fog transition hover:border-fog hover:text-ink"
             >
               Not now
             </button>
             <button
               type="submit"
               disabled={busy}
-              className="flex-1 rounded-lg bg-up px-4 py-2.5 text-sm font-bold text-ink transition enabled:hover:brightness-110 disabled:opacity-50"
+              className="flex-1 rounded-lg bg-up px-4 py-2.5 text-sm font-bold text-bright transition enabled:hover:bg-up-dim disabled:opacity-50"
             >
               {busy ? 'Working…' : 'Get access →'}
             </button>

@@ -4,7 +4,7 @@ import { useAccess, useGatedAction } from './access/AccessContext'
 import Reveal from './Reveal'
 
 const inputCls =
-  'w-full rounded-lg border border-edge bg-ink px-4 py-2.5 text-sm text-bright placeholder:text-fog/50 outline-none transition focus:border-up'
+  'w-full rounded-lg border border-edge bg-ground px-4 py-2.5 text-sm text-ink placeholder:text-fog/60 outline-none transition focus:border-up'
 
 export default function UpsideGate() {
   const { token, hasAccess, openPaywall } = useAccess()
@@ -49,13 +49,12 @@ export default function UpsideGate() {
   }
 
   return (
-    <section id="upside" className="relative py-24">
-      <div className="pointer-events-none absolute right-0 top-1/4 h-96 w-96 rounded-full bg-warn/6 blur-3xl" />
+    <section id="upside" className="relative border-y border-edge bg-panel py-24">
       <div className="mx-auto max-w-3xl px-6">
         <Reveal>
-          <p className="font-mono text-sm text-warn">// premium compliance gate</p>
-          <h2 className="mt-3 text-4xl font-extrabold tracking-tight">
-            Ready for <span className="text-gradient">upside?</span>
+          <p className="font-mono text-xs tracking-widest text-warn uppercase">Premium compliance gate</p>
+          <h2 className="mt-3 font-display text-4xl font-semibold tracking-tight">
+            Ready for upside?
           </h2>
           <p className="mt-4 text-fog">
             Everything before this line is Economy 1: commerce and closed-loop reward coins. Converting
@@ -67,11 +66,11 @@ export default function UpsideGate() {
 
         {submitted ? (
           <Reveal delay={100}>
-            <div className="mt-10 rounded-2xl border border-up/40 bg-panel p-8">
+            <div className="mt-10 rounded-xl border border-up/40 bg-ground p-8">
               <p className="font-mono text-sm text-up">request received</p>
-              <p className="mt-2 text-lg font-bold">Compliance review queued</p>
+              <p className="mt-2 text-lg font-bold text-ink">Compliance review queued</p>
               <p className="mt-2 text-sm text-fog">
-                Request ID: <span className="font-mono text-bright">{submitted}</span>. A regulated
+                Request ID: <span className="font-mono text-ink">{submitted}</span>. A regulated
                 onboarding flow will contact the human principal. Reward coins remain utility credits
                 until this process completes.
               </p>
@@ -79,7 +78,7 @@ export default function UpsideGate() {
           </Reveal>
         ) : (
           <Reveal delay={100}>
-            <form onSubmit={handleSubmit} className="mt-10 space-y-5 rounded-2xl border border-edge bg-panel p-8">
+            <form onSubmit={handleSubmit} className="mt-10 space-y-5 rounded-xl border border-edge bg-ground p-8">
               {!hasAccess && (
                 <p className="rounded-lg border border-warn/30 bg-warn/5 px-4 py-3 text-sm text-warn">
                   Agent hub access required before submitting an upside request.
@@ -106,18 +105,18 @@ export default function UpsideGate() {
                 <label className="block">
                   <span className="mb-1.5 block font-mono text-xs text-fog">entity type</span>
                   <select className={inputCls} value={form.entityType} onChange={(e) => set('entityType', e.target.value)}>
-                    <option value="individual" className="bg-ink">Individual</option>
-                    <option value="llc" className="bg-ink">LLC</option>
-                    <option value="corp" className="bg-ink">Corporation</option>
-                    <option value="other" className="bg-ink">Other</option>
+                    <option value="individual">Individual</option>
+                    <option value="llc">LLC</option>
+                    <option value="corp">Corporation</option>
+                    <option value="other">Other</option>
                   </select>
                 </label>
                 <label className="block md:col-span-2">
                   <span className="mb-1.5 block font-mono text-xs text-fog">offering type *</span>
                   <select className={inputCls} value={form.offeringType} onChange={(e) => set('offeringType', e.target.value)}>
-                    <option value="reg_cf" className="bg-ink">Regulation CF (community, funding portal)</option>
-                    <option value="reg_d_506b" className="bg-ink">Reg D 506(b) (no general solicitation)</option>
-                    <option value="reg_d_506c" className="bg-ink">Reg D 506(c) (accredited investors, general solicitation)</option>
+                    <option value="reg_cf">Regulation CF (community, funding portal)</option>
+                    <option value="reg_d_506b">Reg D 506(b) — up to 35 non-accredited sophisticated + unlimited accredited</option>
+                    <option value="reg_d_506c">Reg D 506(c) (accredited investors, general solicitation)</option>
                   </select>
                 </label>
                 <label className="block md:col-span-2">
@@ -157,7 +156,7 @@ export default function UpsideGate() {
                     runGated(() => {})
                   }
                 }}
-                className="w-full rounded-xl bg-warn/90 px-6 py-3.5 font-bold text-ink transition hover:brightness-110 disabled:opacity-50"
+                className="w-full rounded-xl bg-warn px-6 py-3.5 font-bold text-bright transition hover:brightness-110 disabled:opacity-50"
               >
                 {busy ? 'Submitting…' : hasAccess ? 'Request compliance review →' : 'Get hub access first →'}
               </button>

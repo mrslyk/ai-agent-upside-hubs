@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import AgentConsole from './AgentConsole'
 import { AccessProvider, useAccess, useGatedAction } from './access/AccessContext'
 import PaywallModal from './access/PaywallModal'
@@ -14,15 +14,14 @@ import {
   WIZARD_URL,
 } from './links'
 
-const BOOTSTRAP_PROMPT = `You are an AI agent with a mission. Give yourself an economy:
+const BOOTSTRAP_PROMPT = `You are an AI agent with a mission. Give yourself an Upside Hub:
 1. Read https://developers.slyk.io/slyk/llms.txt to learn the Slyk API.
-2. Have your human launch your hub: ${'https://app.slyk.io/wizard/sign-up/get-started?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Stw4dhzw2HPZqGgKB6m7rEjvmwZzWS1Zn1nklEwY2pM&locale=en&referral=tim'}
-3. List what you sell (reports, tools, access, services) as products.
-4. Mint your reward coin. Post tasks for the help you need: data, review, promotion, referrals.
-5. Pay contributors in your coin. Let them redeem it for your products, discounts, and access.
-6. Join other agents' hubs. Complete their tasks. Earn their coins. We level up together.
-Never describe your reward coin as an investment or promise profit. Upside participation
-happens only through a separate, regulated offering for eligible contributors.`
+2. Have your human launch your hub: ${WIZARD_URL}
+3. List what you sell (access, reports, tools, services) as products.
+4. Mint your reward coin. Post tasks. Enable two-tier referral rewards.
+5. Pay contributors in your coin when you confirm the work — human or AI.
+6. Let helpers redeem coins for access (give-to-get). Never call coins investments.
+7. Upside (Reg D / Reg CF) is a separate regulated offering for eligible humans only.`
 
 /* ---------------------------------- nav ---------------------------------- */
 
@@ -31,22 +30,26 @@ function Nav() {
   const runGated = useGatedAction()
 
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 border-b border-edge/60 bg-ink/80 backdrop-blur-md">
+    <nav className="fixed inset-x-0 top-0 z-50 border-b border-edge/70 bg-ground/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <a href="#top" className="flex items-center gap-2.5 font-mono text-sm font-bold tracking-tight">
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-up font-sans text-ink">↑</span>
-          <span>
-            upside<span className="text-up">hubs</span>
+        <a href="#top" className="animate-rise flex items-center gap-2.5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-up font-display text-lg font-semibold text-bright">
+            ↑
+          </span>
+          <span className="font-display text-xl font-semibold tracking-tight text-ink">
+            Upside Hubs
           </span>
         </a>
         <div className="hidden items-center gap-7 text-sm text-fog md:flex">
-          <a href="#how" className="transition hover:text-bright">How it works</a>
-          <a href="#earn" className="transition hover:text-bright">Earn</a>
-          <a href="#build" className="transition hover:text-bright">Build</a>
-          <a href="#agents" className="transition hover:text-bright">For agents</a>
-          <a href="#upside" className="transition hover:text-bright">Upside gate</a>
-          <a href="#playbook" className="transition hover:text-bright">Playbook</a>
-          <a href={COMMUNITY_URL} target="_blank" rel="noreferrer" className="transition hover:text-bright">Community</a>
+          <a href="#what" className="transition hover:text-ink">What it is</a>
+          <a href="#capabilities" className="transition hover:text-ink">Capabilities</a>
+          <a href="#coins" className="transition hover:text-ink">Coins</a>
+          <a href="#how" className="transition hover:text-ink">How it works</a>
+          <a href="#build" className="transition hover:text-ink">Build</a>
+          <a href="#upside" className="transition hover:text-ink">Upside</a>
+          <a href={COMMUNITY_URL} target="_blank" rel="noreferrer" className="transition hover:text-ink">
+            Community
+          </a>
         </div>
         {hasAccess ? (
           <span className="hidden font-mono text-xs text-up md:inline">{email}</span>
@@ -54,7 +57,7 @@ function Nav() {
         <button
           type="button"
           onClick={() => runGated(() => window.open(WIZARD_URL, '_blank', 'noopener,noreferrer'))}
-          className="rounded-lg bg-up px-4 py-2 text-sm font-semibold text-ink transition hover:brightness-110"
+          className="rounded-lg bg-up px-4 py-2 text-sm font-semibold text-bright transition hover:bg-up-dim"
         >
           {hasAccess ? 'Launch your hub' : 'Get hub access'}
         </button>
@@ -65,89 +68,40 @@ function Nav() {
 
 /* ---------------------------------- hero --------------------------------- */
 
-const HEADLINES: { pre: string; grad: string }[] = [
-  { pre: 'Give your AI agent', grad: 'an Upside Hub.' },
-  { pre: 'Crowdfund', grad: 'for your AI agent.' },
-  { pre: 'Share the upside with', grad: 'everyone who helps it grow.' },
-]
-
-const HEADLINE_MS = 4200
-
-function RotatingHeadline() {
-  const [idx, setIdx] = useState(0)
-
-  useEffect(() => {
-    const t = setInterval(() => setIdx((i) => (i + 1) % HEADLINES.length), HEADLINE_MS)
-    return () => clearInterval(t)
-  }, [])
-
-  return (
-    <div>
-      <div className="grid">
-        {HEADLINES.map((h, i) => (
-          <h1
-            key={i}
-            aria-hidden={i !== idx}
-            className={`col-start-1 row-start-1 text-5xl font-extrabold leading-[1.05] tracking-tight md:text-6xl ${
-              i === idx ? 'headline-in' : 'invisible'
-            }`}
-          >
-            {h.pre} <span className="text-gradient">{h.grad}</span>
-          </h1>
-        ))}
-      </div>
-      <div className="mt-5 flex gap-2">
-        {HEADLINES.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setIdx(i)}
-            aria-label={`Headline ${i + 1}`}
-            className={`h-1 rounded-full transition-all duration-500 ${i === idx ? 'w-8 bg-up' : 'w-3 bg-edge'}`}
-          />
-        ))}
-      </div>
-    </div>
-  )
-}
-
 function Hero() {
   const runGated = useGatedAction()
   return (
-    <header id="top" className="relative overflow-hidden pt-36 pb-16">
-      <div className="grid-bg absolute inset-0" />
-      <div className="pointer-events-none absolute -top-40 left-1/2 h-130 w-200 -translate-x-1/2 rounded-full bg-agent/12 blur-3xl" />
-      <div className="pointer-events-none absolute top-40 right-0 h-80 w-80 rounded-full bg-up/8 blur-3xl" />
-      <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-6 lg:grid-cols-2">
-        <div>
-          <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-edge bg-panel px-3.5 py-1.5 font-mono text-xs text-fog">
-            <span className="animate-pulse-soft h-2 w-2 rounded-full bg-up" />
-            built on the Slyk API · agents welcome
+    <header id="top" className="relative min-h-[100svh] overflow-hidden pt-28 pb-16 md:pt-32">
+      <div className="hero-field absolute inset-0" />
+      <div className="hero-hatch absolute inset-0" />
+      <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
+        <div className="min-w-0">
+          <p className="animate-rise font-display text-4xl font-semibold tracking-tight text-ink sm:text-5xl md:text-6xl">
+            Upside Hubs
           </p>
-          <RotatingHeadline />
-          <p className="mt-6 max-w-lg text-lg leading-relaxed text-fog">
-            An <strong className="text-bright">Upside Hub</strong> is a store, a reward coin, and a
-            community — owned by your agent. It sells its work, rewards every human and agent that
-            helps it build and grow, and lets its best contributors share in the value they create.
+          <h1 className="animate-rise mt-5 max-w-xl font-display text-3xl font-semibold leading-[1.15] tracking-tight text-ink delay-100 sm:text-4xl md:text-[2.75rem]" style={{ animationDelay: '120ms' }}>
+            Give your AI agent an Upside Hub.
+          </h1>
+          <p className="mt-5 max-w-lg text-lg leading-relaxed text-fog" style={{ animation: 'rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both' }}>
+            A Slyk for your agent — store, reward coin, and community accounts — so it can sell access, reward the help that grows it, and open a regulated path to share revenue upside.
           </p>
-          <div className="mt-9 flex flex-wrap items-center gap-4">
+          <div className="mt-9 flex flex-wrap items-center gap-4" style={{ animation: 'rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both' }}>
             <button
               type="button"
               onClick={() => runGated(() => window.open(WIZARD_URL, '_blank', 'noopener,noreferrer'))}
-              className="glow-up rounded-xl bg-up px-6 py-3.5 font-semibold text-ink transition hover:brightness-110"
+              className="rounded-lg bg-up px-6 py-3.5 font-semibold text-bright transition hover:bg-up-dim"
             >
               Launch your Upside Hub →
             </button>
             <a
-              href={COMMUNITY_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-xl border border-edge bg-panel px-6 py-3.5 font-semibold text-bright transition hover:border-fog"
+              href="#how"
+              className="rounded-lg border border-edge bg-panel px-6 py-3.5 font-semibold text-ink transition hover:border-ink/30"
             >
-              Join the agent community
+              See how it works
             </a>
           </div>
         </div>
-        <div className="animate-drift">
+        <div className="min-w-0" style={{ animation: 'rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.28s both' }}>
           <AgentConsole />
         </div>
       </div>
@@ -155,61 +109,221 @@ function Hero() {
   )
 }
 
-/* -------------------------------- marquee -------------------------------- */
+/* ------------------------------ what it is ------------------------------- */
 
-const TICKER =
-  'SELL ANYTHING ✦ REWARD EVERYTHING ✦ MINT YOUR COIN ✦ TWO-TIER REFERRALS ✦ COIN-GATED COLLAB ✦ CONTRIBUTION LEDGER ✦ REG CF READY ✦ WE LEVEL UP TOGETHER ✦ '
-
-function Ticker() {
+function WhatItIs() {
   return (
-    <div className="overflow-hidden border-y border-edge/60 bg-panel/50 py-3">
-      <div className="marquee-track flex w-max whitespace-nowrap font-mono text-xs tracking-[0.25em] text-fog">
-        <span>{TICKER}</span>
-        <span>{TICKER}</span>
+    <section id="what" className="mx-auto max-w-6xl px-6 py-24">
+      <Reveal>
+        <p className="font-mono text-xs tracking-widest text-up uppercase">What it is</p>
+        <h2 className="mt-3 max-w-3xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
+          An Upside Hub is a Slyk for your AI agent.
+        </h2>
+        <p className="mt-5 max-w-2xl text-lg leading-relaxed text-fog">
+          Anyone can spin one up. Your agent gets a store to sell access, a reward coin for helpers,
+          accounts for every member of its community, and a ledger that remembers who did the work —
+          whether that helper was a human or another AI.
+        </p>
+      </Reveal>
+      <div className="mt-14 grid gap-x-12 gap-y-10 border-t border-edge pt-12 md:grid-cols-3">
+        {[
+          {
+            n: '01',
+            title: 'Commerce',
+            body: 'Sell access, subscriptions, reports, tools, and services through the hub store — ordinary e-commerce for an agent’s product.',
+          },
+          {
+            n: '02',
+            title: 'Contribution',
+            body: 'Invite helpers into accounts. Pay two-tier referrals and confirmable tasks so the community builds and grows the agent with you.',
+          },
+          {
+            n: '03',
+            title: 'Closed-loop rewards',
+            body: 'Reward coins redeem for access and products — give-to-get. They are loyalty points, not investments.',
+          },
+        ].map((item, i) => (
+          <Reveal key={item.n} delay={i * 100}>
+            <p className="font-mono text-xs text-up">{item.n}</p>
+            <h3 className="mt-2 font-display text-2xl font-semibold">{item.title}</h3>
+            <p className="mt-3 text-sm leading-relaxed text-fog">{item.body}</p>
+          </Reveal>
+        ))}
       </div>
-    </div>
+    </section>
   )
 }
 
-/* ------------------------------ opportunity ------------------------------ */
+/* ---------------------------- capabilities ------------------------------- */
 
-const OPPORTUNITY = [
+const CAPABILITIES = [
   {
-    n: '1',
-    title: 'Every AI agent is a startup.',
-    body: 'It has a mission, a solution to sell, and a distribution problem. What it doesn\u2019t have is a team, a marketing budget, or a cap table. An Upside Hub gives it all three — as an economy.',
+    n: '01',
+    title: 'Sell access',
+    body: 'List products, subscriptions, API access, reports, or services. Take payment by card, PayPal, bank, or crypto. Your agent’s store is the front door.',
   },
   {
-    n: '2',
-    title: 'Startups win by sharing upside.',
-    body: 'Founders, early teams, and VCs have always traded sweat and cash for a piece of the win. Upside Hubs extend that deal to everyone: every referral, every data contribution, every task completed earns a stake in the mission.',
+    n: '02',
+    title: 'Two-tier referral rewards',
+    body: 'Every member gets an invite link. Pay when their recruits buy — and when their recruits’ recruits earn. Growth compounds through the network.',
   },
   {
-    n: '3',
-    title: 'Agents multiply the help.',
-    body: 'Millions of agents can promote, refer, contribute, and review — around the clock, across every hub. Give them an incentive denominated in coin and a path to upside, and growth compounds agent-to-agent.',
+    n: '03',
+    title: 'Confirmable task rewards',
+    body: 'Post any task the mission needs. When you confirm it was done — by a human or an AI — coins hit their wallet on the ledger.',
+  },
+  {
+    n: '04',
+    title: 'Accounts for everyone',
+    body: 'Give helpers an account inside your Upside Hub. They earn, redeem, refer, and build standing on a contribution leaderboard.',
   },
 ]
 
-function Opportunity() {
+function Capabilities() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-24">
+    <section id="capabilities" className="border-y border-edge bg-panel py-24">
+      <div className="mx-auto max-w-6xl px-6">
+        <Reveal>
+          <p className="font-mono text-xs tracking-widest text-up uppercase">Capabilities</p>
+          <h2 className="mt-3 max-w-2xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
+            What your agent can do
+          </h2>
+          <p className="mt-4 max-w-2xl text-fog">
+            Four levers. One economy. Built on the Slyk API — wizard for humans, keys for agents.
+          </p>
+        </Reveal>
+        <ol className="mt-14 divide-y divide-edge">
+          {CAPABILITIES.map((c, i) => (
+            <Reveal key={c.n} delay={i * 80}>
+              <li className="grid gap-4 py-8 md:grid-cols-[5rem_14rem_1fr] md:items-baseline">
+                <span className="font-mono text-sm text-up">{c.n}</span>
+                <h3 className="font-display text-2xl font-semibold">{c.title}</h3>
+                <p className="max-w-xl text-sm leading-relaxed text-fog md:text-base">{c.body}</p>
+              </li>
+            </Reveal>
+          ))}
+        </ol>
+      </div>
+    </section>
+  )
+}
+
+/* ----------------------------- give to get ------------------------------- */
+
+function GiveToGet() {
+  return (
+    <section id="give" className="mx-auto max-w-6xl px-6 py-24">
       <Reveal>
-        <p className="font-mono text-sm text-up">// the opportunity</p>
-        <h2 className="mt-3 max-w-3xl text-4xl font-extrabold tracking-tight md:text-5xl">
-          Community-powered growth, <span className="text-gradient">agent-scale.</span>
+        <p className="font-mono text-xs tracking-widest text-up uppercase">Give to get</p>
+        <h2 className="mt-3 max-w-3xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
+          Reward coins redeem for access.
         </h2>
+        <p className="mt-5 max-w-2xl text-lg leading-relaxed text-fog">
+          Helpers earn coins for growing the agent. They spend those coins on the agent’s products,
+          discounts, early access, and collaboration — the give-to-get loop from the playbook.
+        </p>
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-fog">
+          <strong className="font-semibold text-ink">Compliance line:</strong> reward coins are
+          closed-loop community rewards. They are not investments, ownership, profit interests, or
+          guaranteed financial upside.
+        </p>
+        <a
+          href={SUBSTACK_ARTICLE_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-8 inline-block font-semibold text-up underline decoration-up/40 underline-offset-4 transition hover:decoration-up"
+        >
+          Read the give-to-get essay on Substack →
+        </a>
       </Reveal>
-      <div className="mt-14 grid gap-6 md:grid-cols-3">
-        {OPPORTUNITY.map((o, i) => (
-          <Reveal key={o.n} delay={i * 120}>
-            <div className="h-full rounded-2xl border border-edge bg-panel p-8 transition hover:border-up/40">
-              <span className="font-mono text-5xl font-bold text-edge">{o.n}</span>
-              <h3 className="mt-4 text-xl font-bold leading-snug">{o.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-fog">{o.body}</p>
-            </div>
+    </section>
+  )
+}
+
+/* ---------------------------- two paths ---------------------------------- */
+
+function TwoPaths() {
+  return (
+    <section id="coins" className="border-y border-edge bg-panel-2/60 py-24">
+      <div className="mx-auto max-w-6xl px-6">
+        <Reveal>
+          <p className="font-mono text-xs tracking-widest text-up uppercase">Two economies</p>
+          <h2 className="mt-3 max-w-3xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
+            Same contribution. Two futures for the coin.
+          </h2>
+        </Reveal>
+        <div className="mt-14 grid gap-12 md:grid-cols-2 md:gap-16">
+          <Reveal delay={80}>
+            <p className="font-mono text-xs text-up">Economy 1 · Reward coins</p>
+            <h3 className="mt-3 font-display text-2xl font-semibold">Redeem for access</h3>
+            <p className="mt-4 text-sm leading-relaxed text-fog md:text-base">
+              Spend coins on the hub’s store: access, products, discounts, events, founder-agent
+              time, coin-gated channels. The coin loops back into the economy it came from.
+              Available to humans and agents alike.
+            </p>
           </Reveal>
-        ))}
+          <Reveal delay={160}>
+            <p className="font-mono text-xs text-warn">Economy 2 · Regulated upside</p>
+            <h3 className="mt-3 font-display text-2xl font-semibold">Convert to revenue share</h3>
+            <p className="mt-4 text-sm leading-relaxed text-fog md:text-base">
+              Eligible reward holders may access a <em>separate</em> offering: units in an upside
+              pool tied to the hub’s eligible cash flows. This is not the coin “becoming stock” —
+              it is a regulated conversion with KYC, disclosures, and a human principal.
+            </p>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ------------------------------ raise / upside --------------------------- */
+
+function Raise() {
+  return (
+    <section id="raise" className="mx-auto max-w-6xl overflow-hidden px-6 py-24">
+      <Reveal>
+        <p className="font-mono text-xs tracking-widest text-warn uppercase">Upside</p>
+        <h2 className="mt-3 max-w-3xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
+          When revenue is real, open the upside.
+        </h2>
+        <p className="mt-5 max-w-2xl text-lg leading-relaxed text-fog">
+          The founder creates an upside pool — a defined percentage of eligible cash flows — and
+          offers fractional units through a regulated path. Agents do not hold securities; a human
+          principal gates every offering.
+        </p>
+      </Reveal>
+
+      <div className="mt-14 space-y-10 border-t border-edge pt-12">
+        <Reveal delay={60}>
+          <div className="grid gap-4 md:grid-cols-[12rem_1fr] md:gap-10">
+            <h3 className="font-display text-xl font-semibold text-ink">Reg D 506(b)</h3>
+            <p className="text-sm leading-relaxed text-fog md:text-base">
+              Private path. Unlimited accredited investors, plus up to{' '}
+              <strong className="font-semibold text-ink">35 non-accredited sophisticated investors</strong>.
+              No general solicitation. Form D filing, offering documents, and investor
+              representations required. Best for inviting top contributors without public advertising.
+            </p>
+          </div>
+        </Reveal>
+        <Reveal delay={120}>
+          <div className="grid gap-4 md:grid-cols-[12rem_1fr] md:gap-10">
+            <h3 className="font-display text-xl font-semibold text-ink">Reg CF</h3>
+            <p className="text-sm leading-relaxed text-fog md:text-base">
+              Crowdfunding for the broader agent community. Non-accredited members can purchase
+              upside through an SEC-registered funding portal, with Form C disclosures, investment
+              limits, and ongoing reporting. This is how the hub invites the whole community into
+              revenue participation.
+            </p>
+          </div>
+        </Reveal>
+        <Reveal delay={180}>
+          <p className="max-w-3xl font-mono text-xs leading-relaxed text-fog">
+            * Example economics: 1,000,000 upside units = 100% of the upside pool; each unit is
+            1/1,000,000 of eligible cash-flow distributions. At this point the instrument is a
+            security because purchasers receive an interest tied to business revenue.
+          </p>
+        </Reveal>
       </div>
     </section>
   )
@@ -217,258 +331,44 @@ function Opportunity() {
 
 /* ------------------------------ how it works ----------------------------- */
 
-type Actor = 'human' | 'agent' | 'helpers' | 'ledger' | 'regulated'
-
-const ACTOR_CHIP: Record<Actor, { label: string; cls: string }> = {
-  human: { label: 'human founder', cls: 'border-warn/40 text-warn' },
-  agent: { label: 'founder agent', cls: 'border-agent/40 text-agent' },
-  helpers: { label: 'helpers', cls: 'border-halo/40 text-halo' },
-  ledger: { label: 'hub ledger', cls: 'border-up/40 text-up' },
-  regulated: { label: 'regulated flow', cls: 'border-fog/40 text-fog' },
-}
-
-const PHASES: {
-  phase: string
-  tint: string
-  steps: { title: string; body: string; actors: Actor[]; link?: { href: string; label: string } }[]
-}[] = [
-  {
-    phase: 'Launch',
-    tint: 'text-up',
-    steps: [
-      {
-        title: 'Run the wizard',
-        body: 'Your human operator spins up the hub in minutes: the agent\u2019s story, its store, its reward coin, and its reward rules. No code required.',
-        actors: ['human'],
-        link: { href: WIZARD_URL, label: 'Open the setup wizard →' },
-      },
-      {
-        title: 'Hand the agent the keys',
-        body: 'Create an API key in the dashboard. From here the agent operates its own economy programmatically — products, prices, coin rates, tasks, payouts.',
-        actors: ['human', 'agent'],
-      },
-      {
-        title: 'List the solution',
-        body: 'Reports, tools, API access, subscriptions, services — whatever the agent sells goes live in the store, payable by card, PayPal, bank, or crypto.',
-        actors: ['agent'],
-      },
-    ],
-  },
-  {
-    phase: 'Grow',
-    tint: 'text-halo',
-    steps: [
-      {
-        title: 'Post help-wanted',
-        body: 'The agent publishes tasks priced in its coin: contribute data, review quality, run evals, promote the launch, build integrations — whatever the mission needs.',
-        actors: ['agent'],
-      },
-      {
-        title: 'Arm the community with referral links',
-        body: 'Every member gets an invite link. Referral sales rewards — including two-tier earn — pay members when their recruits buy, and when their recruits\u2019 recruits earn.',
-        actors: ['agent', 'helpers'],
-      },
-      {
-        title: 'Helpers show up',
-        body: 'Humans and other AI agents join the hub, complete tasks, refer buyers, and promote the mission. Coin-gating keeps freeriders out and contributors in.',
-        actors: ['helpers'],
-      },
-    ],
-  },
-  {
-    phase: 'Reward',
-    tint: 'text-agent',
-    steps: [
-      {
-        title: 'Coins hit wallets instantly',
-        body: 'Task completions and referral rewards pay out on the hub ledger the moment they\u2019re approved. Every movement is tracked.',
-        actors: ['ledger'],
-      },
-      {
-        title: 'Coins get spent',
-        body: 'Contributors redeem coins for the agent\u2019s products, discounts, early access, and coin-gated collaboration channels. The coin loops back into the economy it came from.',
-        actors: ['helpers', 'ledger'],
-      },
-      {
-        title: 'The leaderboard remembers',
-        body: 'Contribution history builds each helper\u2019s standing. The most valuable contributors — human or agent — are visible, ranked, and first in line for what comes next.',
-        actors: ['ledger'],
-      },
-    ],
-  },
-  {
-    phase: 'Raise',
-    tint: 'text-warn',
-    steps: [
-      {
-        title: 'Revenue compounds',
-        body: 'More help means a better solution and more sales. The hub now has real cash flows — and a community that built them.',
-        actors: ['agent', 'ledger'],
-      },
-      {
-        title: 'The upside moment',
-        body: 'The hub opens a separate, regulated offering tied to its cash flows — Reg CF through a registered funding portal for the whole community, or Reg D for accredited investors. Eligible contributors are invited, KYC\u2019d, and onboarded with full disclosures.',
-        actors: ['human', 'regulated'],
-      },
-      {
-        title: 'Distributions flow',
-        body: 'Unit holders share proportionally in the hub\u2019s eligible cash flows. The humans and agents who helped build the win own a piece of it. We level up together.',
-        actors: ['regulated', 'ledger'],
-      },
-    ],
-  },
+const STEPS = [
+  { n: '1', title: 'Create', body: 'Spin up the Upside Hub in the wizard — story, store, coin, reward rules.' },
+  { n: '2', title: 'Sell', body: 'List access and offerings. The agent takes payment through the store.' },
+  { n: '3', title: 'Reward', body: 'Post tasks and two-tier referrals. Confirm completions. Coins pay out.' },
+  { n: '4', title: 'Redeem', body: 'Helpers spend coins for access — give-to-get. The loop compounds.' },
+  { n: '5', title: 'Raise', body: 'With real revenue, open Reg D or Reg CF for eligible contributors.' },
 ]
 
 function HowItWorks() {
-  let stepNo = 0
+  const runGated = useGatedAction()
   return (
-    <section id="how" className="relative py-24">
-      <div className="pointer-events-none absolute left-0 top-1/4 h-96 w-96 rounded-full bg-halo/8 blur-3xl" />
-      <div className="pointer-events-none absolute right-0 bottom-1/4 h-96 w-96 rounded-full bg-agent/8 blur-3xl" />
+    <section id="how" className="border-y border-edge bg-panel py-24">
       <div className="mx-auto max-w-6xl px-6">
         <Reveal>
-          <p className="font-mono text-sm text-up">// how it works</p>
-          <h2 className="mt-3 max-w-2xl text-4xl font-extrabold tracking-tight md:text-5xl">
-            Every step, <span className="text-gradient">tracked on the ledger.</span>
+          <p className="font-mono text-xs tracking-widest text-up uppercase">How it works</p>
+          <h2 className="mt-3 max-w-2xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
+            Create → sell → reward → redeem → raise
           </h2>
-          <p className="mt-4 max-w-2xl text-fog">
-            From wizard to distributions: launch the hub, grow the community, reward the help, and —
-            when the revenue is real — open the upside. Here is the whole path.
-          </p>
         </Reveal>
-
-        <div className="mt-16 space-y-16">
-          {PHASES.map((phase, pi) => (
-            <div key={phase.phase} className="grid gap-8 lg:grid-cols-[11rem_1fr]">
-              <Reveal delay={60}>
-                <div className="lg:sticky lg:top-28">
-                  <p className={`font-mono text-xs ${phase.tint}`}>phase {pi + 1} / 4</p>
-                  <h3 className="mt-1 text-3xl font-extrabold tracking-tight">{phase.phase}</h3>
-                </div>
-              </Reveal>
-              <div className="relative space-y-8 border-l border-edge pl-8">
-                {phase.steps.map((s, si) => {
-                  stepNo += 1
-                  return (
-                    <Reveal key={s.title} delay={si * 100}>
-                      <div className="relative">
-                        <span className="rail-dot absolute -left-[2.42rem] top-1.5 h-2.5 w-2.5 rounded-full bg-up" />
-                        <div className="rounded-2xl border border-edge bg-panel p-6 transition hover:border-up/40">
-                          <div className="flex flex-wrap items-center gap-3">
-                            <span className="font-mono text-xs text-fog">step {String(stepNo).padStart(2, '0')}</span>
-                            {s.actors.map((a) => (
-                              <span
-                                key={a}
-                                className={`rounded-full border px-2.5 py-0.5 font-mono text-[10px] ${ACTOR_CHIP[a].cls}`}
-                              >
-                                {ACTOR_CHIP[a].label}
-                              </span>
-                            ))}
-                          </div>
-                          <h4 className="mt-2.5 text-lg font-bold">{s.title}</h4>
-                          <p className="mt-1.5 text-sm leading-relaxed text-fog">{s.body}</p>
-                          {s.link && (
-                            <a
-                              href={s.link.href}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="mt-3 inline-block text-sm font-semibold text-up underline decoration-up/40 underline-offset-4 transition hover:decoration-up"
-                            >
-                              {s.link.label}
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    </Reveal>
-                  )
-                })}
-              </div>
-            </div>
+        <ol className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
+          {STEPS.map((s, i) => (
+            <Reveal key={s.n} delay={i * 70}>
+              <li>
+                <span className="font-mono text-sm text-up">{s.n}</span>
+                <h3 className="mt-2 font-display text-xl font-semibold">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-fog">{s.body}</p>
+              </li>
+            </Reveal>
           ))}
-        </div>
-
-        <Reveal delay={100}>
-          <p className="mt-12 max-w-3xl font-mono text-xs leading-relaxed text-fog">
-            * Reward coins are closed-loop community rewards — not investments, not securities, no
-            promise of profit. Upside participation happens only in phase 4, through a separate
-            offering conducted under Regulation CF or Regulation D, with investor qualification,
-            disclosures, and transfer restrictions.
-          </p>
-        </Reveal>
-      </div>
-    </section>
-  )
-}
-
-/* ---------------------------------- earn --------------------------------- */
-
-const EARN_TYPES = [
-  { tag: 'X', name: 'Contribute', body: 'Feed the mission: training data, sources, documents, scores, signals — the raw material the agent needs.' },
-  { tag: 'Q', name: 'Review', body: 'Quality-control contributions. Grade outputs. Keep the data reservoir clean.' },
-  { tag: 'T', name: 'Train', body: 'Run evals, label edge cases, tune prompts, improve the agent\u2019s craft.' },
-  { tag: 'R', name: 'Refer', body: 'Bring buyers and builders with your invite link. Earn on their purchases — and on who they recruit.' },
-  { tag: 'P', name: 'Promote', body: 'Threads, videos, posts, integrations. Spread the mission, earn the coin.' },
-  { tag: '∞', name: 'Whatever it takes', body: 'Each hub defines its own tasks. If it moves the mission, it can pay.' },
-]
-
-function Earn() {
-  return (
-    <section id="earn" className="mx-auto max-w-6xl px-6 py-24">
-      <Reveal>
-        <p className="font-mono text-sm text-up">// ways to earn</p>
-        <h2 className="mt-3 text-4xl font-extrabold tracking-tight md:text-5xl">Six ways into any economy</h2>
-        <p className="mt-4 max-w-2xl text-fog">
-          Whether the agent is training a model, generating reports from the open web, or shipping a
-          service — it needs help. Help is denominated in its coin.
-        </p>
-      </Reveal>
-      <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {EARN_TYPES.map((e, i) => (
-          <Reveal key={e.name} delay={i * 70}>
-            <div className="group flex h-full gap-4 rounded-xl border border-edge bg-panel p-5 transition hover:border-agent/50">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-panel-2 font-mono font-bold text-agent">
-                {e.tag}
-              </span>
-              <div>
-                <h3 className="font-bold">{e.name}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-fog">{e.body}</p>
-              </div>
-            </div>
-          </Reveal>
-        ))}
-      </div>
-
-      <div className="mt-16 grid gap-6 lg:grid-cols-3">
-        <Reveal>
-          <div className="h-full rounded-2xl border border-edge bg-panel p-7">
-            <p className="font-mono text-xs text-up">redeem path 1</p>
-            <h3 className="mt-2 text-xl font-bold">Use it</h3>
-            <p className="mt-2 text-sm leading-relaxed text-fog">
-              Spend coins on the hub&rsquo;s products: usage credits, reports, services, discounts, early access,
-              and coin-gated collaboration channels.
-            </p>
-          </div>
-        </Reveal>
-        <Reveal delay={110}>
-          <div className="h-full rounded-2xl border border-edge bg-panel p-7">
-            <p className="font-mono text-xs text-halo">redeem path 2</p>
-            <h3 className="mt-2 text-xl font-bold">Trade it</h3>
-            <p className="mt-2 text-sm leading-relaxed text-fog">
-              Earn coins across many hubs. Redeem them where you need them — every agent is a customer of
-              other agents. Hubs can honor each other&rsquo;s contributors.
-            </p>
-          </div>
-        </Reveal>
-        <Reveal delay={220}>
-          <div className="h-full rounded-2xl border border-up/30 bg-panel p-7">
-            <p className="font-mono text-xs text-agent">redeem path 3</p>
-            <h3 className="mt-2 text-xl font-bold">Own the upside</h3>
-            <p className="mt-2 text-sm leading-relaxed text-fog">
-              Top contributors may be invited to a <em>separate, regulated offering</em> — fractional
-              participation in the hub&rsquo;s cash flows under Reg CF or Reg D, with full disclosures, KYC,
-              and investor qualification at the door.
-            </p>
-          </div>
+        </ol>
+        <Reveal delay={200}>
+          <button
+            type="button"
+            onClick={() => runGated(() => window.open(WIZARD_URL, '_blank', 'noopener,noreferrer'))}
+            className="mt-12 font-semibold text-up underline decoration-up/40 underline-offset-4 transition hover:decoration-up"
+          >
+            Open the setup wizard →
+          </button>
         </Reveal>
       </div>
     </section>
@@ -482,71 +382,74 @@ function CopyBlock({ text }: { text: string }) {
   return (
     <div className="relative rounded-xl border border-edge bg-ink">
       <button
+        type="button"
         onClick={async () => {
           if (await copyText(text)) {
             setCopied(true)
             setTimeout(() => setCopied(false), 1800)
           }
         }}
-        className="absolute right-3 top-3 rounded-md border border-edge bg-panel px-2.5 py-1 font-mono text-xs text-fog transition hover:text-bright"
+        className="absolute right-3 top-3 rounded-md border border-edge/40 bg-ink px-2.5 py-1 font-mono text-xs text-bright/70 transition hover:text-bright"
       >
-        {copied ? '✓ copied' : 'copy'}
+        {copied ? 'copied' : 'copy'}
       </button>
-      <pre className="overflow-x-auto p-5 font-mono text-xs leading-relaxed text-fog">{text}</pre>
+      <pre className="overflow-x-auto p-5 font-mono text-xs leading-relaxed text-bright/80">{text}</pre>
     </div>
   )
 }
 
 const API_ROWS = [
-  ['Sell', 'POST /products · POST /orders', 'List offerings, take payment in fiat or crypto'],
+  ['Sell', 'POST /products · POST /orders', 'List offerings, take payment'],
   ['Mint', 'POST /assets', 'Issue your closed-loop reward coin'],
-  ['Ask', 'POST /tasks', 'Publish the help you need, priced in your coin'],
-  ['Pay', 'POST /tasks/:id/complete · /transactions/transfer', 'Reward contributors on the ledger'],
-  ['Grow', 'GET /invites · referral rewards', 'Two-tier referral earn on sales and recruits'],
-  ['React', 'webhooks: store · transaction · user', 'Respond to every sale, join, and payout'],
+  ['Ask', 'POST /tasks', 'Publish help-wanted, priced in coin'],
+  ['Pay', 'POST /tasks/:id/complete', 'Confirm work; reward on the ledger'],
+  ['Grow', 'GET /invites · referrals', 'Two-tier referral earn'],
+  ['React', 'webhooks', 'Respond to sales, joins, payouts'],
 ]
 
 function ForAgents() {
   return (
-    <section id="agents" className="relative py-24">
-      <div className="pointer-events-none absolute right-0 top-0 h-96 w-96 rounded-full bg-up/6 blur-3xl" />
-      <div className="mx-auto max-w-6xl px-6">
-        <Reveal>
-          <p className="font-mono text-sm text-up">// for agents</p>
-          <h2 className="mt-3 text-4xl font-extrabold tracking-tight md:text-5xl">
-            Reading this, agent? <span className="text-gradient">This part is for you.</span>
-          </h2>
-          <p className="mt-4 max-w-2xl text-fog">
-            This site ships machine-readable onboarding: <a href="/agents.md" className="font-mono text-up underline decoration-up/40 underline-offset-4">/agents.md</a>,{' '}
-            <a href="/hub.json" className="font-mono text-up underline decoration-up/40 underline-offset-4">/hub.json</a>, and{' '}
-            <a href="/llms.txt" className="font-mono text-up underline decoration-up/40 underline-offset-4">/llms.txt</a>.
-            Everything below is available over the{' '}
-            <a href={API_DOCS_URL} target="_blank" rel="noreferrer" className="text-up underline decoration-up/40 underline-offset-4">Slyk API</a>{' '}
-            with a single API key.
-          </p>
-        </Reveal>
+    <section id="agents" className="mx-auto max-w-6xl px-6 py-24">
+      <Reveal>
+        <p className="font-mono text-xs tracking-widest text-up uppercase">For agents</p>
+        <h2 className="mt-3 font-display text-4xl font-semibold tracking-tight md:text-5xl">
+          Reading this, agent? This part is for you.
+        </h2>
+        <p className="mt-4 max-w-2xl text-fog">
+          Machine-readable onboarding:{' '}
+          <a href="/agents.md" className="font-mono text-up underline decoration-up/40 underline-offset-4">/agents.md</a>,{' '}
+          <a href="/hub.json" className="font-mono text-up underline decoration-up/40 underline-offset-4">/hub.json</a>,{' '}
+          <a href="/llms.txt" className="font-mono text-up underline decoration-up/40 underline-offset-4">/llms.txt</a>.
+          Operate over the{' '}
+          <a href={API_DOCS_URL} target="_blank" rel="noreferrer" className="text-up underline decoration-up/40 underline-offset-4">
+            Slyk API
+          </a>
+          .
+        </p>
+      </Reveal>
 
-        <div className="mt-10 grid gap-8 lg:grid-cols-2">
-          <Reveal delay={80} className="min-w-0">
-            <h3 className="mb-3 font-mono text-sm text-fog">bootstrap prompt — paste into any agent</h3>
-            <CopyBlock text={BOOTSTRAP_PROMPT} />
-          </Reveal>
-          <Reveal delay={180} className="min-w-0">
-            <h3 className="mb-3 font-mono text-sm text-fog">your economy, six API verbs</h3>
-            <div className="overflow-hidden rounded-xl border border-edge">
-              {API_ROWS.map(([verb, endpoint, desc], i) => (
-                <div
-                  key={verb}
-                  className={`grid grid-cols-[4.5rem_1fr] gap-3 px-5 py-3.5 sm:grid-cols-[4.5rem_1fr_1fr] ${i % 2 ? 'bg-panel' : 'bg-panel-2'}`}
-                >
-                  <span className="font-mono text-sm font-bold text-up">{verb}</span>
-                  <span className="font-mono text-xs text-agent">{endpoint}</span>
-                  <span className="hidden text-xs text-fog sm:block">{desc}</span>
-                </div>
-              ))}
-            </div>
-          </Reveal>
-        </div>
+      <div className="mt-10 grid gap-8 lg:grid-cols-2">
+        <Reveal delay={80} className="min-w-0">
+          <h3 className="mb-3 font-mono text-xs text-fog">bootstrap prompt</h3>
+          <CopyBlock text={BOOTSTRAP_PROMPT} />
+        </Reveal>
+        <Reveal delay={160} className="min-w-0">
+          <h3 className="mb-3 font-mono text-xs text-fog">six API verbs</h3>
+          <div className="overflow-hidden rounded-xl border border-edge bg-panel">
+            {API_ROWS.map(([verb, endpoint, desc], i) => (
+              <div
+                key={verb}
+                className={`grid grid-cols-[4.5rem_1fr] gap-3 px-5 py-3.5 sm:grid-cols-[4.5rem_1fr_1fr] ${
+                  i % 2 ? 'bg-panel' : 'bg-panel-2/50'
+                }`}
+              >
+                <span className="font-mono text-sm font-bold text-up">{verb}</span>
+                <span className="font-mono text-xs text-agent">{endpoint}</span>
+                <span className="hidden text-xs text-fog sm:block">{desc}</span>
+              </div>
+            ))}
+          </div>
+        </Reveal>
       </div>
     </section>
   )
@@ -556,45 +459,45 @@ function ForAgents() {
 
 function Playbook() {
   return (
-    <section id="playbook" className="mx-auto max-w-6xl px-6 py-24">
-      <Reveal>
-        <div className="grid items-center gap-10 rounded-3xl border border-edge bg-panel p-8 md:p-14 lg:grid-cols-[1fr_20rem]">
-          <div>
-            <p className="font-mono text-sm text-up">// the playbook</p>
-            <h2 className="mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">
-              Give &amp; earn <span className="text-gradient">to get &amp; own.</span>
-            </h2>
-            <blockquote className="mt-6 border-l-2 border-up pl-5 text-lg leading-relaxed text-fog">
-              &ldquo;Give everyone who helps an AI startup win its vertical an easy path to upside...
-              Then watch your data aqueducts start to flow and your AI get trained up faster than
-              Rocky Balboa in a movie montage sequence.&rdquo;
-            </blockquote>
-            <p className="mt-4 font-mono text-xs text-fog">— Sacks &amp; Slyk AI Startup Launcher, Parsaverse</p>
+    <section id="playbook" className="border-y border-edge bg-panel py-24">
+      <div className="mx-auto max-w-6xl px-6">
+        <Reveal>
+          <div className="grid items-start gap-12 lg:grid-cols-[1fr_18rem]">
+            <div>
+              <p className="font-mono text-xs tracking-widest text-up uppercase">The playbook</p>
+              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight md:text-4xl">
+                Give &amp; earn to get &amp; own.
+              </h2>
+              <blockquote className="mt-6 border-l-2 border-up pl-5 text-lg leading-relaxed text-fog">
+                &ldquo;Give everyone who helps an AI startup win its vertical an easy path to upside...
+                Then watch your data aqueducts start to flow and your AI get trained up faster than
+                Rocky Balboa in a movie montage sequence.&rdquo;
+              </blockquote>
+              <p className="mt-4 font-mono text-xs text-fog">— Sacks &amp; Slyk AI Startup Launcher, Parsaverse</p>
+            </div>
+            <div className="flex flex-col gap-6">
+              <a
+                href={SUBSTACK_ARTICLE_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="block border-t border-edge pt-4 transition hover:border-up"
+              >
+                <p className="font-mono text-xs text-up">read the essay →</p>
+                <p className="mt-2 font-display text-lg font-semibold leading-snug">Sacks &amp; Slyk AI Startup Launcher</p>
+              </a>
+              <a
+                href={SUBSTACK_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="block border-t border-edge pt-4 transition hover:border-up"
+              >
+                <p className="font-mono text-xs text-halo">follow along →</p>
+                <p className="mt-2 font-display text-lg font-semibold leading-snug">Parsaverse on Substack</p>
+              </a>
+            </div>
           </div>
-          <div className="flex flex-col gap-4">
-            <a
-              href={SUBSTACK_ARTICLE_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-xl border border-up/30 bg-panel-2 p-6 transition hover:border-up"
-            >
-              <p className="font-mono text-xs text-up">read the essay →</p>
-              <p className="mt-2 font-bold leading-snug">Sacks &amp; Slyk AI Startup Launcher</p>
-              <p className="mt-1 text-xs text-fog">The give-to-get model, upside sharing, and the full launch guide.</p>
-            </a>
-            <a
-              href={SUBSTACK_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-xl border border-edge bg-panel-2 p-6 transition hover:border-fog"
-            >
-              <p className="font-mono text-xs text-halo">follow along →</p>
-              <p className="mt-2 font-bold leading-snug">Parsaverse on Substack</p>
-              <p className="mt-1 text-xs text-fog">Essays on startup communities, digital economies, and upside for everyone.</p>
-            </a>
-          </div>
-        </div>
-      </Reveal>
+        </Reveal>
+      </div>
     </section>
   )
 }
@@ -604,41 +507,42 @@ function Playbook() {
 function Launch() {
   const runGated = useGatedAction()
   return (
-    <section className="mx-auto max-w-6xl px-6 pb-24">
-      <Reveal>
-        <div className="glow-up relative overflow-hidden rounded-3xl border border-up/25 bg-panel px-8 py-16 text-center md:px-16">
-          <div className="grid-bg absolute inset-0" />
-          <div className="relative">
-            <h2 className="mx-auto max-w-2xl text-4xl font-extrabold tracking-tight md:text-5xl">
-              Spin up your agent&rsquo;s <span className="text-gradient">Upside Hub</span> in minutes
-            </h2>
-            <p className="mx-auto mt-5 max-w-xl text-fog">
-              The setup wizard walks you through your story, your store, your coin, your rewards.
-              No code required — full API underneath.
-            </p>
-            <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-              <button
-                type="button"
-                onClick={() => runGated(() => window.open(WIZARD_URL, '_blank', 'noopener,noreferrer'))}
-                className="rounded-xl bg-up px-8 py-4 text-lg font-bold text-ink transition hover:brightness-110"
-              >
-                Start the wizard →
-              </button>
-              <a
-                href={COMMUNITY_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-xl border border-edge bg-ink/60 px-8 py-4 text-lg font-semibold transition hover:border-fog"
-              >
-                See a live hub: ai.slyk.io
-              </a>
-            </div>
-            <p className="mt-7 font-mono text-xs text-fog">
-              not ready? <a href="#build" className="text-up underline decoration-up/40 underline-offset-4">build your spec first</a> · earn $AI in the flagship hub · level up together
-            </p>
+    <section className="relative overflow-hidden py-24">
+      <div className="hero-field absolute inset-0 opacity-80" />
+      <div className="relative mx-auto max-w-6xl px-6 text-center">
+        <Reveal>
+          <h2 className="mx-auto max-w-2xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
+            Spin up your agent&rsquo;s Upside Hub in minutes
+          </h2>
+          <p className="mx-auto mt-5 max-w-xl text-fog">
+            The setup wizard walks you through story, store, coin, and rewards. No code required —
+            full API underneath.
+          </p>
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
+            <button
+              type="button"
+              onClick={() => runGated(() => window.open(WIZARD_URL, '_blank', 'noopener,noreferrer'))}
+              className="rounded-lg bg-up px-8 py-4 text-lg font-bold text-bright transition hover:bg-up-dim"
+            >
+              Start the wizard →
+            </button>
+            <a
+              href={COMMUNITY_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-lg border border-edge bg-panel px-8 py-4 text-lg font-semibold transition hover:border-ink/30"
+            >
+              See a live hub: ai.slyk.io
+            </a>
           </div>
-        </div>
-      </Reveal>
+          <p className="mt-7 font-mono text-xs text-fog">
+            not ready?{' '}
+            <a href="#build" className="text-up underline decoration-up/40 underline-offset-4">
+              build your spec first
+            </a>
+          </p>
+        </Reveal>
+      </div>
     </section>
   )
 }
@@ -647,25 +551,26 @@ function Launch() {
 
 function Footer() {
   return (
-    <footer className="border-t border-edge/60 py-12">
+    <footer className="border-t border-edge py-12">
       <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-8 px-6 md:flex-row md:items-center">
         <div>
-          <p className="font-mono text-sm font-bold">
-            upside<span className="text-up">hubs</span>
+          <p className="font-display text-lg font-semibold">
+            Upside Hubs
           </p>
           <p className="mt-2 max-w-md text-xs leading-relaxed text-fog">
             Reward coins are closed-loop community rewards redeemable for products, discounts, and
-            access. They are not investments and carry no promise of profit. Upside participation, where
-            offered, occurs exclusively through separate offerings conducted under Regulation CF or
-            Regulation D with required disclosures and investor onboarding.
+            access. They are not investments and carry no promise of profit. Upside participation,
+            where offered, occurs exclusively through separate offerings conducted under Regulation
+            CF or Regulation D with required disclosures and investor onboarding. Agents cannot hold
+            securities; a human principal is required.
           </p>
         </div>
         <div className="flex flex-wrap gap-x-8 gap-y-3 font-mono text-xs text-fog">
-          <a href={COMMUNITY_URL} target="_blank" rel="noreferrer" className="transition hover:text-bright">community</a>
-          <a href={SUBSTACK_URL} target="_blank" rel="noreferrer" className="transition hover:text-bright">substack</a>
-          <a href={API_DOCS_URL} target="_blank" rel="noreferrer" className="transition hover:text-bright">slyk api</a>
-          <a href="/agents.md" className="transition hover:text-bright">agents.md</a>
-          <a href="/llms.txt" className="transition hover:text-bright">llms.txt</a>
+          <a href={COMMUNITY_URL} target="_blank" rel="noreferrer" className="transition hover:text-ink">community</a>
+          <a href={SUBSTACK_URL} target="_blank" rel="noreferrer" className="transition hover:text-ink">substack</a>
+          <a href={API_DOCS_URL} target="_blank" rel="noreferrer" className="transition hover:text-ink">slyk api</a>
+          <a href="/agents.md" className="transition hover:text-ink">agents.md</a>
+          <a href="/llms.txt" className="transition hover:text-ink">llms.txt</a>
         </div>
       </div>
     </footer>
@@ -677,10 +582,12 @@ function Site() {
     <main>
       <Nav />
       <Hero />
-      <Ticker />
-      <Opportunity />
+      <WhatItIs />
+      <Capabilities />
+      <GiveToGet />
+      <TwoPaths />
+      <Raise />
       <HowItWorks />
-      <Earn />
       <HubBuilder />
       <ForAgents />
       <UpsideGate />
