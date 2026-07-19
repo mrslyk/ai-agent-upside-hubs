@@ -1,26 +1,31 @@
 {
-  "name": "AI Agent Upside Hubs",
-  "description": "Give any AI agent an Upside Hub on Slyk: sell access, accounts for helpers, confirmable task rewards, two-tier referrals, give-to-get coin redemption, and a separate Reg D / Reg CF path to revenue upside.",
-  "version": "1.0.0",
+  "name": "Agent Upside",
+  "description": "Launch an Upside Hub for any AI agent on Slyk: USD ecomm via SlykPay (platform-operated Stripe), reward coin for tasks and two-tier referrals (give-to-get), and a separate Reg D / Reg CF path for revenue share from SlykPay net proceeds after redemptions.",
+  "version": "1.1.0",
   "audience": ["ai-agents", "agent-operators", "human-collaborators"],
   "links": {
     "get_access": "/api/checkout",
     "verify_access": "/api/verify-access",
     "upside_gate": "/api/upside-request",
     "mcp_server": "mcp-server/README.md",
-    "launch_wizard": "https://app.slyk.io/wizard/sign-up/get-started?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Stw4dhzw2HPZqGgKB6m7rEjvmwZzWS1Zn1nklEwY2pM&locale=en&referral=tim",
+    "launch_intake": "/#build",
     "flagship_community": "https://ai.slyk.io/?locale=en",
     "api_reference": "https://developers.slyk.io/slyk/reference",
     "api_llms_txt": "https://developers.slyk.io/slyk/llms.txt",
     "agent_onboarding": "/agents.md"
   },
+  "launch_model": {
+    "primary": "intake-then-generate",
+    "payments": "SlykPay (USD). Operators do not connect their own Stripe.",
+    "wizard": "ops-fallback-only"
+  },
   "capabilities": {
     "sell": {
-      "description": "List and sell products, services, subscriptions, and access.",
+      "description": "List and sell products, services, subscriptions, and access in USD via SlykPay.",
       "endpoints": ["POST /products", "POST /categories", "POST /orders"]
     },
     "mint": {
-      "description": "Issue a closed-loop reward coin (usage credits, service credit, points).",
+      "description": "Issue a closed-loop reward coin named for the agent's mission (usage credits, service credit, points).",
       "endpoints": ["POST /assets", "POST /rates"]
     },
     "reward": {
@@ -39,12 +44,12 @@
   "earn_types": ["contribute-data", "quality-review", "training-eval", "referral", "promotion", "custom-task"],
   "redemption_paths": ["products-and-discounts", "access-and-collaboration", "regulated-upside-offering-for-eligible-contributors"],
   "access": {
-    "economy_1": "Purchase agent hub access via POST /api/checkout (Stripe) or beta access code. Unlocks hub builder, wizard launch, and MCP Economy 1 tools.",
-    "economy_2": "POST /api/upside-request with Bearer token. Triggers premium Reg D/Reg CF compliance review. Human principal required. Agents cannot hold securities."
+    "economy_1": "Purchase hub access via POST /api/checkout (Stripe for site access) or beta access code. Unlocks launch intake and MCP Economy 1 tools. Agent store payments run on SlykPay after hub generation.",
+    "economy_2": "POST /api/upside-request with Bearer token. Triggers premium Reg D/Reg CF compliance review. Human principal required. Agents cannot hold securities. Funded from SlykPay net of redemptions."
   },
   "compliance": {
     "reward_coin_status": "Closed-loop community reward. Not an investment, security, ownership, or profit interest. No promise of financial return.",
-    "upside_mechanism": "Separate offering under Regulation CF (funding portal crowdfunding) or Regulation D (e.g. 506(b): up to 35 non-accredited sophisticated + unlimited accredited) with KYC, investor qualification, disclosures, and transfer restrictions. Human principal required; agents cannot hold securities.",
+    "upside_mechanism": "Separate offering under Regulation CF (funding portal crowdfunding) or Regulation D (e.g. 506(b): up to 35 non-accredited sophisticated + unlimited accredited) with KYC, investor qualification, disclosures, and transfer restrictions. Distributions from SlykPay net proceeds after reward redemptions. Human principal required; agents cannot hold securities.",
     "promotion_rules": [
       "Do not market reward coins as investments.",
       "Do not promise profits from reward participation.",

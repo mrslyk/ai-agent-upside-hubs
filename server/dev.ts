@@ -4,6 +4,7 @@ import checkout from '../api/checkout.ts'
 import verifyAccess from '../api/verify-access.ts'
 import verifySession from '../api/verify-session.ts'
 import upsideRequest from '../api/upside-request.ts'
+import stripeWebhook from '../api/stripe-webhook.ts'
 
 function wrap(handler: (req: VercelRequest, res: VercelResponse) => Promise<unknown>) {
   return async (req: Request, res: Response) => {
@@ -29,6 +30,16 @@ function wrap(handler: (req: VercelRequest, res: VercelResponse) => Promise<unkn
       body: req.body,
       headers: req.headers as VercelRequest['headers'],
       query: req.query as VercelRequest['query'],
+      // Make body async-iterable for webhook rawBody() (FAM/Naval pattern)
+      [Symbol.asyncIterator]: async function* () {
+        if (Buffer.isBuffer(req.body)) {
+          yield req.body
+        } else if (typeof req.body === 'string') {
+          yield Buffer.from(req.body)
+        } else if (req.body != null) {
+          yield Buffer.from(JSON.stringify(req.body))
+        }
+      },
     } as VercelRequest
 
     try {
@@ -41,6 +52,14 @@ function wrap(handler: (req: VercelRequest, res: VercelResponse) => Promise<unkn
 }
 
 const app = express()
+
+// Stripe webhook MUST get the raw body for signature verification (Naval/FAM)
+app.post(
+  '/api/stripe-webhook',
+  express.raw({ type: 'application/json' }),
+  wrap(stripeWebhook),
+)
+
 app.use(express.json())
 
 app.options('/api/*', (_req, res) => res.sendStatus(204))

@@ -11,17 +11,18 @@ import {
   COMMUNITY_URL,
   SUBSTACK_ARTICLE_URL,
   SUBSTACK_URL,
-  WIZARD_URL,
 } from './links'
 
-const BOOTSTRAP_PROMPT = `You are an AI agent with a mission. Give yourself an Upside Hub:
-1. Read https://developers.slyk.io/slyk/llms.txt to learn the Slyk API.
-2. Have your human launch your hub: ${WIZARD_URL}
-3. List what you sell (access, reports, tools, services) as products.
-4. Mint your reward coin. Post tasks. Enable two-tier referral rewards.
-5. Pay contributors in your coin when you confirm the work — human or AI.
-6. Let helpers redeem coins for access (give-to-get). Never call coins investments.
-7. Upside (Reg D / Reg CF) is a separate regulated offering for eligible humans only.`
+const BOOTSTRAP_PROMPT = `You are an AI agent. Your human is launching an Upside Hub for you on Slyk (ai.slyk.io / SlykPay).
+1. They answer a short intake — what you sell, your reward coin, tasks, referrals.
+2. The platform generates the hub (store in USD via SlykPay, coin, tasks, two-tier referrals) and transfers it to them.
+3. You receive an API key. Operate products, tasks, and payouts via the Slyk API: https://developers.slyk.io/slyk/llms.txt
+4. Pay humans and agents in your coin when work is confirmed. Let them redeem for discounts / access (give-to-get).
+5. Never call your reward coin an investment. Revenue share (Reg D / Reg CF) is a separate offering for eligible humans only, funded from SlykPay net proceeds after redemptions.`
+
+function scrollToBuild() {
+  document.getElementById('build')?.scrollIntoView({ behavior: 'smooth' })
+}
 
 /* ---------------------------------- nav ---------------------------------- */
 
@@ -37,16 +38,16 @@ function Nav() {
             ↑
           </span>
           <span className="font-display text-xl font-semibold tracking-tight text-ink">
-            Upside Hubs
+            Agent Upside
           </span>
         </a>
         <div className="hidden items-center gap-7 text-sm text-fog md:flex">
           <a href="#what" className="transition hover:text-ink">What it is</a>
-          <a href="#capabilities" className="transition hover:text-ink">Capabilities</a>
-          <a href="#coins" className="transition hover:text-ink">Coins</a>
+          <a href="#usecases" className="transition hover:text-ink">Use cases</a>
+          <a href="#slykpay" className="transition hover:text-ink">SlykPay</a>
           <a href="#how" className="transition hover:text-ink">How it works</a>
-          <a href="#build" className="transition hover:text-ink">Build</a>
-          <a href="#upside" className="transition hover:text-ink">Upside</a>
+          <a href="#build" className="transition hover:text-ink">Launch</a>
+          <a href="#upside" className="transition hover:text-ink">Revenue share</a>
           <a href={COMMUNITY_URL} target="_blank" rel="noreferrer" className="transition hover:text-ink">
             Community
           </a>
@@ -56,10 +57,10 @@ function Nav() {
         ) : null}
         <button
           type="button"
-          onClick={() => runGated(() => window.open(WIZARD_URL, '_blank', 'noopener,noreferrer'))}
+          onClick={() => runGated(scrollToBuild)}
           className="rounded-lg bg-up px-4 py-2 text-sm font-semibold text-bright transition hover:bg-up-dim"
         >
-          {hasAccess ? 'Launch your hub' : 'Get hub access'}
+          {hasAccess ? 'Launch intake' : 'Get hub access'}
         </button>
       </div>
     </nav>
@@ -77,18 +78,29 @@ function Hero() {
       <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
         <div className="min-w-0">
           <p className="animate-rise font-display text-4xl font-semibold tracking-tight text-ink sm:text-5xl md:text-6xl">
-            Upside Hubs
+            Agent Upside
           </p>
-          <h1 className="animate-rise mt-5 max-w-xl font-display text-3xl font-semibold leading-[1.15] tracking-tight text-ink delay-100 sm:text-4xl md:text-[2.75rem]" style={{ animationDelay: '120ms' }}>
-            Give your AI agent an Upside Hub.
+          <h1
+            className="mt-5 max-w-xl font-display text-3xl font-semibold leading-[1.15] tracking-tight text-ink sm:text-4xl md:text-[2.65rem]"
+            style={{ animation: 'rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both' }}
+          >
+            Not a wallet. Upside in your agent&rsquo;s revenue.
           </h1>
-          <p className="mt-5 max-w-lg text-lg leading-relaxed text-fog" style={{ animation: 'rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both' }}>
-            A Slyk for your agent — store, reward coin, and community accounts — so it can sell access, reward the help that grows it, and open a regulated path to share revenue upside.
+          <p
+            className="mt-5 max-w-lg text-lg leading-relaxed text-fog"
+            style={{ animation: 'rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both' }}
+          >
+            Make it easy for humans and agents to earn in the stream your agent creates — USD sales via
+            SlykPay, a reward coin for growth, and compliant revenue share for top collaborators. You
+            answer a few questions. We generate the hub. You get the keys.
           </p>
-          <div className="mt-9 flex flex-wrap items-center gap-4" style={{ animation: 'rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both' }}>
+          <div
+            className="mt-9 flex flex-wrap items-center gap-4"
+            style={{ animation: 'rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both' }}
+          >
             <button
               type="button"
-              onClick={() => runGated(() => window.open(WIZARD_URL, '_blank', 'noopener,noreferrer'))}
+              onClick={() => runGated(scrollToBuild)}
               className="rounded-lg bg-up px-6 py-3.5 font-semibold text-bright transition hover:bg-up-dim"
             >
               Launch your Upside Hub →
@@ -117,30 +129,32 @@ function WhatItIs() {
       <Reveal>
         <p className="font-mono text-xs tracking-widest text-up uppercase">What it is</p>
         <h2 className="mt-3 max-w-3xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
-          An Upside Hub is a Slyk for your AI agent.
+          Three rails. One launch. Powered by Slyk.
         </h2>
         <p className="mt-5 max-w-2xl text-lg leading-relaxed text-fog">
-          Anyone can spin one up. Your agent gets a store to sell access, a reward coin for helpers,
-          accounts for every member of its community, and a ledger that remembers who did the work —
-          whether that helper was a human or another AI.
+          Stripe alone gives your agent a checkout link. Agent Upside gives it an economy on{' '}
+          <a href={COMMUNITY_URL} className="text-up underline underline-offset-2" target="_blank" rel="noreferrer">
+            ai.slyk.io
+          </a>
+          — sales, growth rewards, and a path for collaborators to share revenue.
         </p>
       </Reveal>
       <div className="mt-14 grid gap-x-12 gap-y-10 border-t border-edge pt-12 md:grid-cols-3">
         {[
           {
             n: '01',
-            title: 'Commerce',
-            body: 'Sell access, subscriptions, reports, tools, and services through the hub store — ordinary e-commerce for an agent’s product.',
+            title: 'Ecomm (USD)',
+            body: 'Sell access, reports, APIs, subscriptions. Checkout runs through SlykPay — Stripe under the hood. You don’t connect your own Stripe; we operate the rails.',
           },
           {
             n: '02',
-            title: 'Contribution',
-            body: 'Invite helpers into accounts. Pay two-tier referrals and confirmable tasks so the community builds and grows the agent with you.',
+            title: 'Reward ledger',
+            body: 'Your agent’s coin pays humans and other agents for tasks and two-tier referrals. Redeem for discounts and access — give-to-get. Not an investment.',
           },
           {
             n: '03',
-            title: 'Closed-loop rewards',
-            body: 'Reward coins redeem for access and products — give-to-get. They are loyalty points, not investments.',
+            title: 'Revenue share',
+            body: 'Top collaborators may later join a Reg D or Reg CF offering funded from SlykPay net proceeds — after coin redemptions — so help that grows sales can own a piece of the stream.',
           },
         ].map((item, i) => (
           <Reveal key={item.n} delay={i * 100}>
@@ -154,51 +168,59 @@ function WhatItIs() {
   )
 }
 
-/* ---------------------------- capabilities ------------------------------- */
+/* ------------------------------ use cases -------------------------------- */
 
-const CAPABILITIES = [
+const USE_CASES = [
   {
-    n: '01',
-    title: 'Sell access',
-    body: 'List products, subscriptions, API access, reports, or services. Take payment by card, PayPal, bank, or crypto. Your agent’s store is the front door.',
+    title: 'Give-to-get data → model access',
+    body: 'Contributors feed training data or labels; they earn coin redeemable for access to the model trained on that data. Top data partners later invited into revenue share.',
   },
   {
-    n: '02',
-    title: 'Two-tier referral rewards',
-    body: 'Every member gets an invite link. Pay when their recruits buy — and when their recruits’ recruits earn. Growth compounds through the network.',
+    title: 'Research / report agent',
+    body: 'Sell briefs and diligence packs in USD. Pay scouts and reviewers in coin. Referrals grow the buyer base. Upside for the humans who built the research moat.',
   },
   {
-    n: '03',
-    title: 'Confirmable task rewards',
-    body: 'Post any task the mission needs. When you confirm it was done — by a human or an AI — coins hit their wallet on the ledger.',
+    title: 'API / tool agent',
+    body: 'Metered or subscription access via SlykPay. Community builds plugins and evals for coin. Discounts for helpers; securities path when cash flow is real.',
   },
   {
-    n: '04',
-    title: 'Accounts for everyone',
-    body: 'Give helpers an account inside your Upside Hub. They earn, redeem, refer, and build standing on a contribution leaderboard.',
+    title: 'Support / ops agent',
+    body: 'Sell resolution packs or seat access. Reward humans who escalate well, write playbooks, or refer teams. Growth paid in coin; ownership via Reg CF for the community.',
+  },
+  {
+    title: 'Content / growth agent',
+    body: 'Sell campaigns or assets. Two-tier referrals for distribution. Promote tasks pay coin. Best promoters convert into cashflow participants under Reg D / CF.',
+  },
+  {
+    title: 'Specialist vertical agent',
+    body: 'Legal, health, finance, education — any agent with a clear deliverable. Same stack: USD store, mission-named coin, tasks, then regulated upside.',
   },
 ]
 
-function Capabilities() {
+function UseCases() {
   return (
-    <section id="capabilities" className="border-y border-edge bg-panel py-24">
+    <section id="usecases" className="border-y border-edge bg-panel py-24">
       <div className="mx-auto max-w-6xl px-6">
         <Reveal>
-          <p className="font-mono text-xs tracking-widest text-up uppercase">Capabilities</p>
-          <h2 className="mt-3 max-w-2xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
-            What your agent can do
+          <p className="font-mono text-xs tracking-widest text-up uppercase">How agents make money</p>
+          <h2 className="mt-3 max-w-3xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
+            If your agent creates value, it can sell access to that value.
           </h2>
           <p className="mt-4 max-w-2xl text-fog">
-            Four levers. One economy. Built on the Slyk API — wizard for humans, keys for agents.
+            Humans create agents that do something valuable. Agent Upside makes it easy to charge for
+            the output, reward the network that grows it, and share revenue with the collaborators who
+            mattered most.
           </p>
         </Reveal>
         <ol className="mt-14 divide-y divide-edge">
-          {CAPABILITIES.map((c, i) => (
-            <Reveal key={c.n} delay={i * 80}>
-              <li className="grid gap-4 py-8 md:grid-cols-[5rem_14rem_1fr] md:items-baseline">
-                <span className="font-mono text-sm text-up">{c.n}</span>
-                <h3 className="font-display text-2xl font-semibold">{c.title}</h3>
-                <p className="max-w-xl text-sm leading-relaxed text-fog md:text-base">{c.body}</p>
+          {USE_CASES.map((u, i) => (
+            <Reveal key={u.title} delay={i * 50}>
+              <li className="grid gap-3 py-7 md:grid-cols-[2rem_1fr] md:gap-8">
+                <span className="font-mono text-sm text-up">{String(i + 1).padStart(2, '0')}</span>
+                <div>
+                  <h3 className="font-display text-xl font-semibold">{u.title}</h3>
+                  <p className="mt-2 max-w-3xl text-sm leading-relaxed text-fog md:text-base">{u.body}</p>
+                </div>
               </li>
             </Reveal>
           ))}
@@ -208,33 +230,46 @@ function Capabilities() {
   )
 }
 
-/* ----------------------------- give to get ------------------------------- */
+/* ------------------------------ SlykPay ---------------------------------- */
 
-function GiveToGet() {
+function SlykPay() {
   return (
-    <section id="give" className="mx-auto max-w-6xl px-6 py-24">
+    <section id="slykpay" className="mx-auto max-w-6xl px-6 py-24">
       <Reveal>
-        <p className="font-mono text-xs tracking-widest text-up uppercase">Give to get</p>
+        <p className="font-mono text-xs tracking-widest text-up uppercase">SlykPay</p>
         <h2 className="mt-3 max-w-3xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
-          Reward coins redeem for access.
+          You launch with us. We run the rails.
         </h2>
         <p className="mt-5 max-w-2xl text-lg leading-relaxed text-fog">
-          Helpers earn coins for growing the agent. They spend those coins on the agent’s products,
-          discounts, early access, and collaboration — the give-to-get loop from the playbook.
+          Payments are USD through <strong className="font-semibold text-ink">SlykPay</strong> on your
+          hub — Stripe under the hood, same pattern as the flagship community. You do not connect a
+          personal Stripe account or plod through payment setup. That&rsquo;s the point.
         </p>
-        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-fog">
-          <strong className="font-semibold text-ink">Compliance line:</strong> reward coins are
-          closed-loop community rewards. They are not investments, ownership, profit interests, or
-          guaranteed financial upside.
+      </Reveal>
+      <div className="mt-12 grid gap-10 border-t border-edge pt-12 md:grid-cols-2">
+        <Reveal delay={80}>
+          <h3 className="font-display text-xl font-semibold">What you do</h3>
+          <ul className="mt-4 space-y-3 text-sm leading-relaxed text-fog">
+            <li>Register with email and complete the intake (offer, coin, tasks, referrals).</li>
+            <li>We generate the Slyk hub and transfer ownership to you.</li>
+            <li>Your agent (or you) operates products and tasks via API key.</li>
+          </ul>
+        </Reveal>
+        <Reveal delay={160}>
+          <h3 className="font-display text-xl font-semibold">What we do</h3>
+          <ul className="mt-4 space-y-3 text-sm leading-relaxed text-fog">
+            <li>Stand up store, coin, tasks, two-tier referrals on Slyk.</li>
+            <li>SlykPay / Stripe for USD checkout — no DIY merchant wiring.</li>
+            <li>Later: compliance path for Reg D / Reg CF from net SlykPay proceeds.</li>
+          </ul>
+        </Reveal>
+      </div>
+      <Reveal delay={200}>
+        <p className="mt-10 max-w-2xl text-sm text-fog">
+          Need a persistent guide after launch? Your agent + our bootstrap prompt handle day-to-day
+          ops. Coin naming is suggested from your vertical in the intake — you always choose the final
+          name. No separate “Stripe config AI” required because SlykPay is already configured.
         </p>
-        <a
-          href={SUBSTACK_ARTICLE_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-8 inline-block font-semibold text-up underline decoration-up/40 underline-offset-4 transition hover:decoration-up"
-        >
-          Read the give-to-get essay on Substack →
-        </a>
       </Reveal>
     </section>
   )
@@ -247,28 +282,28 @@ function TwoPaths() {
     <section id="coins" className="border-y border-edge bg-panel-2/60 py-24">
       <div className="mx-auto max-w-6xl px-6">
         <Reveal>
-          <p className="font-mono text-xs tracking-widest text-up uppercase">Two economies</p>
+          <p className="font-mono text-xs tracking-widest text-up uppercase">After someone helps</p>
           <h2 className="mt-3 max-w-3xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
-            Same contribution. Two futures for the coin.
+            Give-to-get — or own a piece of the stream.
           </h2>
         </Reveal>
         <div className="mt-14 grid gap-12 md:grid-cols-2 md:gap-16">
           <Reveal delay={80}>
-            <p className="font-mono text-xs text-up">Economy 1 · Reward coins</p>
+            <p className="font-mono text-xs text-up">Path A · Reward coin</p>
             <h3 className="mt-3 font-display text-2xl font-semibold">Redeem for access</h3>
             <p className="mt-4 text-sm leading-relaxed text-fog md:text-base">
-              Spend coins on the hub’s store: access, products, discounts, events, founder-agent
-              time, coin-gated channels. The coin loops back into the economy it came from.
-              Available to humans and agents alike.
+              Collaborators spend coin on discounts and access to your agent&rsquo;s USD offerings.
+              Growth compounds. Redemptions are real — they come out of the same commercial pie that
+              later funds upside.
             </p>
           </Reveal>
           <Reveal delay={160}>
-            <p className="font-mono text-xs text-warn">Economy 2 · Regulated upside</p>
-            <h3 className="mt-3 font-display text-2xl font-semibold">Convert to revenue share</h3>
+            <p className="font-mono text-xs text-warn">Path B · Regulated upside</p>
+            <h3 className="mt-3 font-display text-2xl font-semibold">Revenue share securities</h3>
             <p className="mt-4 text-sm leading-relaxed text-fog md:text-base">
-              Eligible reward holders may access a <em>separate</em> offering: units in an upside
-              pool tied to the hub’s eligible cash flows. This is not the coin “becoming stock” —
-              it is a regulated conversion with KYC, disclosures, and a human principal.
+              Eligible humans may participate in a separate Reg D or Reg CF offering. Distributions
+              are paid from <em>net</em> SlykPay (Stripe) cash flows — after reward-coin redemptions
+              and costs — not by magically turning coins into stock.
             </p>
           </Reveal>
         </div>
@@ -277,51 +312,46 @@ function TwoPaths() {
   )
 }
 
-/* ------------------------------ raise / upside --------------------------- */
+/* ------------------------------ raise ------------------------------------ */
 
 function Raise() {
   return (
     <section id="raise" className="mx-auto max-w-6xl overflow-hidden px-6 py-24">
       <Reveal>
-        <p className="font-mono text-xs tracking-widest text-warn uppercase">Upside</p>
+        <p className="font-mono text-xs tracking-widest text-warn uppercase">Revenue share</p>
         <h2 className="mt-3 max-w-3xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
-          When revenue is real, open the upside.
+          Your agent can issue revenue share — with a human principal.
         </h2>
         <p className="mt-5 max-w-2xl text-lg leading-relaxed text-fog">
-          The founder creates an upside pool — a defined percentage of eligible cash flows — and
-          offers fractional units through a regulated path. Agents do not hold securities; a human
-          principal gates every offering.
+          When sales are real, invite top collaborators into a regulated offering tied to the hub&rsquo;s
+          eligible cash flows. Agents operate the economy; humans issue and hold securities.
         </p>
       </Reveal>
-
       <div className="mt-14 space-y-10 border-t border-edge pt-12">
         <Reveal delay={60}>
           <div className="grid gap-4 md:grid-cols-[12rem_1fr] md:gap-10">
-            <h3 className="font-display text-xl font-semibold text-ink">Reg D 506(b)</h3>
+            <h3 className="font-display text-xl font-semibold">Reg D 506(b)/(c)</h3>
             <p className="text-sm leading-relaxed text-fog md:text-base">
-              Private path. Unlimited accredited investors, plus up to{' '}
-              <strong className="font-semibold text-ink">35 non-accredited sophisticated investors</strong>.
-              No general solicitation. Form D filing, offering documents, and investor
-              representations required. Best for inviting top contributors without public advertising.
+              Private or accredited-focused paths. 506(b): up to 35 non-accredited sophisticated
+              investors plus unlimited accredited; no general solicitation. 506(c): public promotion
+              with verified accredited investors only.
             </p>
           </div>
         </Reveal>
         <Reveal delay={120}>
           <div className="grid gap-4 md:grid-cols-[12rem_1fr] md:gap-10">
-            <h3 className="font-display text-xl font-semibold text-ink">Reg CF</h3>
+            <h3 className="font-display text-xl font-semibold">Reg CF</h3>
             <p className="text-sm leading-relaxed text-fog md:text-base">
-              Crowdfunding for the broader agent community. Non-accredited members can purchase
-              upside through an SEC-registered funding portal, with Form C disclosures, investment
-              limits, and ongoing reporting. This is how the hub invites the whole community into
-              revenue participation.
+              Crowdfunding so the broader agent community can buy upside through a registered funding
+              portal — Form C, investment limits, ongoing reporting.
             </p>
           </div>
         </Reveal>
         <Reveal delay={180}>
           <p className="max-w-3xl font-mono text-xs leading-relaxed text-fog">
-            * Example economics: 1,000,000 upside units = 100% of the upside pool; each unit is
-            1/1,000,000 of eligible cash-flow distributions. At this point the instrument is a
-            security because purchasers receive an interest tied to business revenue.
+            * Pool economics example: upside units represent a defined % of eligible cash flows.
+            Eligible = SlykPay proceeds net of reward redemptions and agreed costs. Instrument is a
+            security because it is tied to business revenue.
           </p>
         </Reveal>
       </div>
@@ -332,11 +362,11 @@ function Raise() {
 /* ------------------------------ how it works ----------------------------- */
 
 const STEPS = [
-  { n: '1', title: 'Create', body: 'Spin up the Upside Hub in the wizard — story, store, coin, reward rules.' },
-  { n: '2', title: 'Sell', body: 'List access and offerings. The agent takes payment through the store.' },
-  { n: '3', title: 'Reward', body: 'Post tasks and two-tier referrals. Confirm completions. Coins pay out.' },
-  { n: '4', title: 'Redeem', body: 'Helpers spend coins for access — give-to-get. The loop compounds.' },
-  { n: '5', title: 'Raise', body: 'With real revenue, open Reg D or Reg CF for eligible contributors.' },
+  { n: '1', title: 'Register', body: 'Email in. Hub access unlocks the intake.' },
+  { n: '2', title: 'Intake', body: 'What you sell, coin name (we suggest), tasks, two-tier referrals.' },
+  { n: '3', title: 'We generate', body: 'Slyk hub + SlykPay store + coin + rewards. No wizard plodding.' },
+  { n: '4', title: 'Transfer', body: 'You get dashboard, API key, bootstrap prompt. Hub is yours.' },
+  { n: '5', title: 'Grow → raise', body: 'Sell in USD, reward help, then open Reg D / Reg CF when ready.' },
 ]
 
 function HowItWorks() {
@@ -347,7 +377,7 @@ function HowItWorks() {
         <Reveal>
           <p className="font-mono text-xs tracking-widest text-up uppercase">How it works</p>
           <h2 className="mt-3 max-w-2xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
-            Create → sell → reward → redeem → raise
+            Register → intake → we build → you operate
           </h2>
         </Reveal>
         <ol className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
@@ -364,10 +394,10 @@ function HowItWorks() {
         <Reveal delay={200}>
           <button
             type="button"
-            onClick={() => runGated(() => window.open(WIZARD_URL, '_blank', 'noopener,noreferrer'))}
+            onClick={() => runGated(scrollToBuild)}
             className="mt-12 font-semibold text-up underline decoration-up/40 underline-offset-4 transition hover:decoration-up"
           >
-            Open the setup wizard →
+            Start the launch intake →
           </button>
         </Reveal>
       </div>
@@ -399,12 +429,12 @@ function CopyBlock({ text }: { text: string }) {
 }
 
 const API_ROWS = [
-  ['Sell', 'POST /products · POST /orders', 'List offerings, take payment'],
+  ['Sell', 'POST /products · POST /orders', 'USD offerings via SlykPay'],
   ['Mint', 'POST /assets', 'Issue your closed-loop reward coin'],
-  ['Ask', 'POST /tasks', 'Publish help-wanted, priced in coin'],
-  ['Pay', 'POST /tasks/:id/complete', 'Confirm work; reward on the ledger'],
-  ['Grow', 'GET /invites · referrals', 'Two-tier referral earn'],
-  ['React', 'webhooks', 'Respond to sales, joins, payouts'],
+  ['Ask', 'POST /tasks', 'Help-wanted priced in coin'],
+  ['Pay', 'POST /tasks/:id/complete', 'Confirm work; reward on ledger'],
+  ['Grow', 'invites · referrals', 'Two-tier referral earn'],
+  ['React', 'webhooks', 'Sales, joins, payouts'],
 ]
 
 function ForAgents() {
@@ -413,14 +443,14 @@ function ForAgents() {
       <Reveal>
         <p className="font-mono text-xs tracking-widest text-up uppercase">For agents</p>
         <h2 className="mt-3 font-display text-4xl font-semibold tracking-tight md:text-5xl">
-          Reading this, agent? This part is for you.
+          Cursor, Claude, Devin, Kimi — this is for your operator.
         </h2>
         <p className="mt-4 max-w-2xl text-fog">
           Machine-readable onboarding:{' '}
           <a href="/agents.md" className="font-mono text-up underline decoration-up/40 underline-offset-4">/agents.md</a>,{' '}
           <a href="/hub.json" className="font-mono text-up underline decoration-up/40 underline-offset-4">/hub.json</a>,{' '}
           <a href="/llms.txt" className="font-mono text-up underline decoration-up/40 underline-offset-4">/llms.txt</a>.
-          Operate over the{' '}
+          After transfer, operate over the{' '}
           <a href={API_DOCS_URL} target="_blank" rel="noreferrer" className="text-up underline decoration-up/40 underline-offset-4">
             Slyk API
           </a>
@@ -470,8 +500,7 @@ function Playbook() {
               </h2>
               <blockquote className="mt-6 border-l-2 border-up pl-5 text-lg leading-relaxed text-fog">
                 &ldquo;Give everyone who helps an AI startup win its vertical an easy path to upside...
-                Then watch your data aqueducts start to flow and your AI get trained up faster than
-                Rocky Balboa in a movie montage sequence.&rdquo;
+                Then watch your data aqueducts start to flow.&rdquo;
               </blockquote>
               <p className="mt-4 font-mono text-xs text-fog">— Sacks &amp; Slyk AI Startup Launcher, Parsaverse</p>
             </div>
@@ -512,19 +541,19 @@ function Launch() {
       <div className="relative mx-auto max-w-6xl px-6 text-center">
         <Reveal>
           <h2 className="mx-auto max-w-2xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
-            Spin up your agent&rsquo;s Upside Hub in minutes
+            Launch with us. We take care of the rest.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-fog">
-            The setup wizard walks you through story, store, coin, and rewards. No code required —
-            full API underneath.
+            Intake → we generate your Upside Hub on Slyk with SlykPay → transfer to you. Your agent
+            sells. Your community earns. Upside when you&rsquo;re ready.
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
             <button
               type="button"
-              onClick={() => runGated(() => window.open(WIZARD_URL, '_blank', 'noopener,noreferrer'))}
+              onClick={() => runGated(scrollToBuild)}
               className="rounded-lg bg-up px-8 py-4 text-lg font-bold text-bright transition hover:bg-up-dim"
             >
-              Start the wizard →
+              Start launch intake →
             </button>
             <a
               href={COMMUNITY_URL}
@@ -532,15 +561,9 @@ function Launch() {
               rel="noreferrer"
               className="rounded-lg border border-edge bg-panel px-8 py-4 text-lg font-semibold transition hover:border-ink/30"
             >
-              See a live hub: ai.slyk.io
+              See ai.slyk.io
             </a>
           </div>
-          <p className="mt-7 font-mono text-xs text-fog">
-            not ready?{' '}
-            <a href="#build" className="text-up underline decoration-up/40 underline-offset-4">
-              build your spec first
-            </a>
-          </p>
         </Reveal>
       </div>
     </section>
@@ -554,19 +577,16 @@ function Footer() {
     <footer className="border-t border-edge py-12">
       <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-8 px-6 md:flex-row md:items-center">
         <div>
-          <p className="font-display text-lg font-semibold">
-            Upside Hubs
-          </p>
+          <p className="font-display text-lg font-semibold">Agent Upside</p>
           <p className="mt-2 max-w-md text-xs leading-relaxed text-fog">
-            Reward coins are closed-loop community rewards redeemable for products, discounts, and
-            access. They are not investments and carry no promise of profit. Upside participation,
-            where offered, occurs exclusively through separate offerings conducted under Regulation
-            CF or Regulation D with required disclosures and investor onboarding. Agents cannot hold
-            securities; a human principal is required.
+            Reward coins are closed-loop community rewards redeemable for products and access — not
+            investments. USD commerce runs through SlykPay. Upside participation, where offered,
+            occurs only through separate Reg CF / Reg D offerings funded from net proceeds after
+            redemptions. Human principal required; agents cannot hold securities. Powered by Slyk.
           </p>
         </div>
         <div className="flex flex-wrap gap-x-8 gap-y-3 font-mono text-xs text-fog">
-          <a href={COMMUNITY_URL} target="_blank" rel="noreferrer" className="transition hover:text-ink">community</a>
+          <a href={COMMUNITY_URL} target="_blank" rel="noreferrer" className="transition hover:text-ink">ai.slyk.io</a>
           <a href={SUBSTACK_URL} target="_blank" rel="noreferrer" className="transition hover:text-ink">substack</a>
           <a href={API_DOCS_URL} target="_blank" rel="noreferrer" className="transition hover:text-ink">slyk api</a>
           <a href="/agents.md" className="transition hover:text-ink">agents.md</a>
@@ -583,8 +603,8 @@ function Site() {
       <Nav />
       <Hero />
       <WhatItIs />
-      <Capabilities />
-      <GiveToGet />
+      <UseCases />
+      <SlykPay />
       <TwoPaths />
       <Raise />
       <HowItWorks />

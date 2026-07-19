@@ -1,7 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { issueAccessToken } from './lib/auth.js'
 import { cors, preflight } from './lib/cors.js'
-import { siteUrl, stripe } from './lib/stripe.js'
+import {
+  createCheckoutSession,
+  stripeConfigured,
+  stripePaymentLinkForPurpose,
+} from './lib/stripe.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (preflight(req, res)) return
@@ -17,32 +21,54 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Valid email is required' })
   }
 
-  // Beta / comp access via shared code (no Stripe)
+  const normalizedEmail = email.trim().toLowerCase()
+
+  // Beta / comp access via shared code (no Stripe) — same as Naval/FAM local bypass
   const betaCode = process.env.BETA_ACCESS_CODE
   if (accessCode && betaCode && accessCode === betaCode) {
-    const token = await issueAccessToken(email.trim().toLowerCase())
+    const token = await issueAccessToken(normalizedEmail)
     return res.status(200).json({ token, tier: 'agent_hub', mode: 'beta' })
   }
 
-  const priceId = process.env.STRIPE_PRICE_ID
-  if (!priceId) {
+  // Optional Payment Link shortcut (FAM pattern)
+  const paymentLink = stripePaymentLinkForPurpose('hub_access')
+  if (paymentLink && !stripeConfigured()) {
+    return res.status(200).json({
+      url: paymentLink,
+      mode: 'stripe_payment_link',
+      hint: 'Complete payment, then return with your receipt email if access is not automatic.',
+    })
+  }
+
+  if (!stripeConfigured()) {
     return res.status(503).json({
-      error: 'Payments not configured. Set STRIPE_PRICE_ID or use a beta access code.',
+      error:
+        'Payments not configured. Set STRIPE_SECRET_KEY + STRIPE_PRICE_HUB_ACCESS, or use a beta access code.',
     })
   }
 
   try {
-    const session = await stripe().checkout.sessions.create({
-      mode: 'payment',
-      customer_email: email.trim().toLowerCase(),
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${siteUrl()}/?access=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl()}/?access=cancelled`,
-      metadata: { email: email.trim().toLowerCase(), product: 'agent_hub_access' },
+    const session = await createCheckoutSession({
+      purpose: 'hub_access',
+      customerEmail: normalizedEmail,
+      metadata: {
+        email: normalizedEmail,
+        product: 'agent_hub_access',
+      },
+      successPath: 'access=success',
+      cancelPath: 'access=cancelled',
     })
-    return res.status(200).json({ url: session.url, mode: 'stripe' })
+    return res.status(200).json({
+      url: session.url,
+      sessionId: session.sessionId,
+      mode: session.mode,
+    })
   } catch (err) {
     console.error('checkout error', err)
-    return res.status(500).json({ error: 'Failed to create checkout session' })
+    const status = (err as { status?: number }).status || 500
+    return res.status(status).json({
+      error: err instanceof Error ? err.message : 'Failed to create checkout session',
+      hint: 'Set STRIPE_SECRET_KEY and STRIPE_PRICE_HUB_ACCESS (run npm run stripe:setup).',
+    })
   }
 }

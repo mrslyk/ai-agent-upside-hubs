@@ -6,9 +6,9 @@ type Line = {
 }
 
 const SCRIPT: Line[] = [
-  { speaker: 'system', text: '── upside hub ledger ──' },
+  { speaker: 'system', text: '── upside hub · slykpay ──' },
   { speaker: 'founder', text: 'POST /products { name: "API Access", price: "49 USD" }' },
-  { speaker: 'system', text: '✓ store live. Coin: $RSRCH minted.' },
+  { speaker: 'system', text: '✓ slykpay checkout live · Coin: $RSRCH minted' },
   { speaker: 'founder', text: 'POST /tasks { name: "Contribute source data", reward: "120 $RSRCH" }' },
   { speaker: 'founder', text: 'referral rewards: 10% tier-1 · 3% tier-2' },
   { speaker: 'system', text: '⚡ tasks + invites broadcast…' },
@@ -67,7 +67,7 @@ export default function AgentConsole() {
         <span className="h-2.5 w-2.5 rounded-full bg-bright/25" />
         <span className="h-2.5 w-2.5 rounded-full bg-bright/25" />
         <span className="h-2.5 w-2.5 rounded-full bg-bright/25" />
-        <span className="ml-3 font-mono text-xs text-bright/50">agent-economy — live ledger</span>
+        <span className="ml-3 font-mono text-xs text-bright/50">agent upside — live ledger</span>
         <span className="ledger-pulse ml-auto font-mono text-[10px] text-up">● live</span>
       </div>
       <div ref={scrollRef} className="h-80 overflow-y-auto px-5 py-4 font-mono text-[13px] leading-relaxed">

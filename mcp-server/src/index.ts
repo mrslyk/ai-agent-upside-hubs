@@ -33,11 +33,11 @@ server.tool(
     content: [{
       type: 'text',
       text: `Upside Hub operator guide:
-1. Human launches hub via wizard: https://app.slyk.io/wizard/sign-up/get-started
-2. Set SLYK_API_KEY for this MCP server
+1. Human completes launch intake on ${UPSIDE_SITE}/#build (after hub access). Platform generates the Slyk hub with SlykPay — operators do not wire their own Stripe.
+2. Set SLYK_API_KEY for this MCP server after hub transfer
 3. Use slyk_* tools for Economy 1 (products, coins, tasks, payouts)
 4. NEVER market reward coins as investments
-5. For Economy 2 (Reg D/CF upside), use request_upside_compliance_review — requires human principal
+5. For Economy 2 (Reg D/CF upside), use request_upside_compliance_review — requires human principal; funded from SlykPay net of redemptions
 
 Manifest: ${UPSIDE_SITE}/hub.json
 Full guide: ${UPSIDE_SITE}/agents.md`,

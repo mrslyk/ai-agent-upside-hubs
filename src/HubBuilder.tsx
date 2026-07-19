@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { copyText } from './copy'
 import { useAccess, useGatedAction } from './access/AccessContext'
+import { suggestCoin } from './coinSuggest'
 import Reveal from './Reveal'
-import { COMMUNITY_URL, WIZARD_URL } from './links'
+import { COMMUNITY_URL } from './links'
 
-type TaskKey = 'data' | 'review' | 'train' | 'promote' | 'integrate'
+type TaskKey = 'data' | 'review' | 'train' | 'promote' | 'integrate' | 'custom'
 
 const TASK_DEFS: { key: TaskKey; label: string; hint: string; defaultReward: string }[] = [
   { key: 'data', label: 'Contribute data', hint: 'sources, documents, datasets, signals', defaultReward: '100' },
@@ -15,17 +16,17 @@ const TASK_DEFS: { key: TaskKey; label: string; hint: string; defaultReward: str
 ]
 
 const OFFERING_TYPES = [
-  'AI-generated reports',
-  'Tool / API access',
-  'Usage credits',
-  'Services & consulting',
+  'API / tool access',
+  'AI-generated reports & briefs',
+  'Give-to-get: data for model access',
+  'Usage credits / compute',
   'Subscriptions & memberships',
+  'Services & consulting',
   'Digital products',
-  'Physical products',
 ]
 
 const REDEMPTIONS = [
-  'Product discounts',
+  'Product discounts (USD store)',
   'Usage credits',
   'Early access',
   'Coin-gated collaboration',
@@ -33,6 +34,7 @@ const REDEMPTIONS = [
 ]
 
 type Spec = {
+  operatorEmail: string
   agentName: string
   subdomain: string
   vertical: string
@@ -42,12 +44,15 @@ type Spec = {
   offeringPrice: string
   coinName: string
   coinSymbol: string
+  coinTouched: boolean
   redemptions: string[]
   tasks: Record<TaskKey, { enabled: boolean; reward: string }>
   referralPct: number
+  referralTier2Pct: number
 }
 
 const INITIAL: Spec = {
+  operatorEmail: '',
   agentName: '',
   subdomain: '',
   vertical: '',
@@ -57,55 +62,58 @@ const INITIAL: Spec = {
   offeringPrice: '49',
   coinName: '',
   coinSymbol: '',
-  redemptions: ['Product discounts', 'Early access'],
+  coinTouched: false,
+  redemptions: ['Product discounts (USD store)', 'Early access'],
   tasks: Object.fromEntries(
     TASK_DEFS.map((t) => [t.key, { enabled: t.key === 'data' || t.key === 'promote', reward: t.defaultReward }]),
   ) as Spec['tasks'],
   referralPct: 10,
+  referralTier2Pct: 3,
 }
 
-const STEP_TITLES = ['Identity', 'Offer', 'Coin', 'Rewards', 'Launch']
+const STEP_TITLES = ['Identity', 'Offer', 'Coin', 'Growth', 'Launch']
 
 function slugify(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
 }
 
-function buildSpecText(s: Spec) {
+function buildProvisionPack(s: Spec) {
   const coin = s.coinSymbol ? `$${s.coinSymbol.toUpperCase()}` : '$COIN'
   const tasks = TASK_DEFS.filter((t) => s.tasks[t.key].enabled)
-    .map((t) => `- ${t.label}: ${s.tasks[t.key].reward || '0'} ${coin} per completion`)
+    .map((t) => `- ${t.label}: ${s.tasks[t.key].reward || '0'} ${coin} per confirmed completion`)
     .join('\n')
-  return `UPSIDE HUB SPEC v1
-==================
+  return `AGENT UPSIDE — PROVISION REQUEST
+================================
+Operator:  ${s.operatorEmail || '(email)'}
 Agent:     ${s.agentName || '(unnamed agent)'}
 Hub:       ${s.subdomain || slugify(s.agentName) || 'your-agent'}.slyk.io
 Vertical:  ${s.vertical || '(vertical)'}
 Pitch:     ${s.pitch || '(one-line pitch)'}
 
-STORE
+ECOMM (USD via SlykPay — we operate Stripe)
 - Offering: ${s.offeringName || '(offering name)'} (${s.offeringType})
 - Price:    $${s.offeringPrice || '0'} USD
+- Rails:    SlykPay on the hub (card via Stripe). Operator does NOT connect their own Stripe.
 
-REWARD COIN
+REWARD COIN (closed-loop — not an investment)
 - Name:        ${s.coinName || '(coin name)'} (${coin})
 - Redeems for: ${s.redemptions.join(', ') || '(select redemptions)'}
-- Status:      closed-loop community reward — not an investment, no promise of profit
+- Note:        Redemptions reduce eligible cash available for later revenue-share pools.
 
-TASKS & REWARDS
+TASKS & REFERRALS (we configure these)
 ${tasks || '- (no tasks selected)'}
-- Referral sales reward: ${s.referralPct}% (two-tier earn recommended)
+- Referral tier 1: ${s.referralPct}% of referred sales
+- Referral tier 2: ${s.referralTier2Pct}% of second-degree sales
 
-UPSIDE PATH (LATER)
-- Eligible top contributors may be invited to a separate, regulated
-  offering (Reg CF / Reg D) tied to hub cash flows. Configure only with
-  compliance tooling in place.
+UPSIDE (LATER — separate regulated offering)
+- Eligible human collaborators may access Reg D / Reg CF revenue participation
+  funded from SlykPay (Stripe) net proceeds after redemptions / costs.
+- Human principal required. Agents do not hold securities.
 
-EXECUTE
-1. Human founder: run the setup wizard and enter the values above:
-   ${WIZARD_URL}
-2. Create an API key in the hub dashboard.
-3. Agent: read https://developers.slyk.io/slyk/llms.txt and operate
-   the economy (products, tasks, payouts) via the Slyk API.`
+FULFILLMENT
+We generate the Slyk hub + store + coin + tasks + referrals, deliver login / API key /
+bootstrap prompt, and transfer the hub to the operator. No wizard plodding.
+`
 }
 
 const inputCls =
@@ -124,36 +132,61 @@ export default function HubBuilder() {
   const [step, setStep] = useState(0)
   const [spec, setSpec] = useState<Spec>(INITIAL)
   const [copied, setCopied] = useState(false)
+  const [queued, setQueued] = useState(false)
   const { hasAccess } = useAccess()
   const runGated = useGatedAction()
 
-  const specText = useMemo(() => buildSpecText(spec), [spec])
+  const suggestion = useMemo(
+    () =>
+      suggestCoin({
+        agentName: spec.agentName,
+        vertical: spec.vertical,
+        offeringType: spec.offeringType,
+        offeringName: spec.offeringName,
+      }),
+    [spec.agentName, spec.vertical, spec.offeringType, spec.offeringName],
+  )
+
+  // Auto-suggest coin until the operator edits it
+  useEffect(() => {
+    if (spec.coinTouched) return
+    if (!spec.agentName && !spec.vertical) return
+    setSpec((s) => ({
+      ...s,
+      coinName: suggestion.coinName,
+      coinSymbol: suggestion.coinSymbol,
+    }))
+  }, [suggestion.coinName, suggestion.coinSymbol, spec.agentName, spec.vertical, spec.coinTouched])
+
+  const pack = useMemo(() => buildProvisionPack(spec), [spec])
   const set = <K extends keyof Spec>(k: K, v: Spec[K]) => setSpec((s) => ({ ...s, [k]: v }))
 
   const canNext =
-    step !== 0 || spec.agentName.trim().length > 0
+    step === 0
+      ? spec.agentName.trim().length > 0 && spec.operatorEmail.includes('@')
+      : true
 
   return (
     <section id="build" className="relative overflow-hidden border-y border-edge bg-panel py-24">
       <div className="mx-auto max-w-6xl px-6">
         <Reveal>
-          <p className="font-mono text-xs tracking-widest text-up uppercase">Build your hub</p>
+          <p className="font-mono text-xs tracking-widest text-up uppercase">Launch intake</p>
           <h2 className="mt-3 max-w-2xl font-display text-4xl font-semibold tracking-tight md:text-5xl">
-            Five questions. One launch-ready spec.
+            Answer. We generate. You get the keys.
           </h2>
           <p className="mt-4 max-w-2xl text-fog">
-            Answer these and we&rsquo;ll assemble everything the setup wizard needs — a spec you can
-            execute yourself, hand to your agent, or bring to the community for a concierge setup.
+            No wizard slog. Tell us what your agent sells, name its reward coin, pick tasks and
+            referrals — we stand up the Slyk, wire SlykPay (USD), and transfer the hub to you.
           </p>
         </Reveal>
 
         <Reveal delay={120}>
           <div className="mt-12 overflow-hidden rounded-xl border border-edge bg-ground">
-            {/* step indicator */}
             <div className="flex border-b border-edge">
               {STEP_TITLES.map((t, i) => (
                 <button
                   key={t}
+                  type="button"
                   onClick={() => i < step && setStep(i)}
                   className={`flex-1 border-r border-edge px-2 py-3 font-mono text-xs transition last:border-r-0 ${
                     i === step ? 'bg-panel text-up' : i < step ? 'text-ink' : 'text-fog/50'
@@ -168,6 +201,15 @@ export default function HubBuilder() {
             <div className="p-6 md:p-10">
               {step === 0 && (
                 <div className="grid gap-5 md:grid-cols-2">
+                  <Field label="your email *">
+                    <input
+                      className={inputCls}
+                      type="email"
+                      placeholder="you@company.com"
+                      value={spec.operatorEmail}
+                      onChange={(e) => set('operatorEmail', e.target.value)}
+                    />
+                  </Field>
                   <Field label="agent name *">
                     <input
                       className={inputCls}
@@ -200,7 +242,7 @@ export default function HubBuilder() {
                   </Field>
                   <Field label="one-line pitch">
                     <input
-                      className={inputCls}
+                      className={`${inputCls} md:col-span-2`}
                       placeholder="Institutional-grade research, agent speed."
                       value={spec.pitch}
                       onChange={(e) => set('pitch', e.target.value)}
@@ -218,7 +260,7 @@ export default function HubBuilder() {
                       onChange={(e) => set('offeringType', e.target.value)}
                     >
                       {OFFERING_TYPES.map((o) => (
-                        <option key={o} value={o} className="bg-panel">
+                        <option key={o} value={o}>
                           {o}
                         </option>
                       ))}
@@ -242,20 +284,60 @@ export default function HubBuilder() {
                     />
                   </Field>
                   <p className="text-xs leading-relaxed text-fog md:col-span-3">
-                    You can add more products later — the wizard just needs your first offering. Payments
-                    can be card, PayPal, bank, or crypto.
+                    Checkout runs in <strong className="text-ink">USD through SlykPay</strong> (Stripe
+                    under the hood on your hub) — same model as{' '}
+                    <a href={COMMUNITY_URL} className="text-up underline underline-offset-2" target="_blank" rel="noreferrer">
+                      ai.slyk.io
+                    </a>
+                    . You launch with us; you do not wire your own Stripe account.
                   </p>
                 </div>
               )}
 
               {step === 2 && (
                 <div className="grid gap-5 md:grid-cols-2">
-                  <Field label="coin name">
+                  <div className="md:col-span-2 rounded-lg border border-up/30 bg-up/5 px-4 py-3">
+                    <p className="font-mono text-xs text-up">suggested from what your agent does</p>
+                    <p className="mt-1 text-sm text-ink">
+                      {suggestion.coinName} ({suggestion.coinSymbol}) — {suggestion.rationale}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {suggestion.alternatives.map((a) => (
+                        <button
+                          key={a.coinSymbol}
+                          type="button"
+                          onClick={() => {
+                            set('coinName', a.coinName)
+                            set('coinSymbol', a.coinSymbol)
+                            set('coinTouched', true)
+                          }}
+                          className="rounded border border-edge bg-panel px-2.5 py-1 font-mono text-xs text-fog transition hover:border-up hover:text-ink"
+                        >
+                          {a.coinName} · ${a.coinSymbol}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          set('coinName', suggestion.coinName)
+                          set('coinSymbol', suggestion.coinSymbol)
+                          set('coinTouched', true)
+                        }}
+                        className="rounded border border-up/40 bg-panel px-2.5 py-1 font-mono text-xs text-up"
+                      >
+                        use suggestion
+                      </button>
+                    </div>
+                  </div>
+                  <Field label="coin name (yours to name)">
                     <input
                       className={inputCls}
-                      placeholder="Research Coin"
+                      placeholder="Research Credits"
                       value={spec.coinName}
-                      onChange={(e) => set('coinName', e.target.value)}
+                      onChange={(e) => {
+                        set('coinName', e.target.value)
+                        set('coinTouched', true)
+                      }}
                     />
                   </Field>
                   <Field label="coin symbol">
@@ -265,7 +347,10 @@ export default function HubBuilder() {
                         className={inputCls}
                         placeholder="RSRCH"
                         value={spec.coinSymbol}
-                        onChange={(e) => set('coinSymbol', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                        onChange={(e) => {
+                          set('coinSymbol', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))
+                          set('coinTouched', true)
+                        }}
                       />
                     </div>
                   </Field>
@@ -277,13 +362,14 @@ export default function HubBuilder() {
                         return (
                           <button
                             key={r}
+                            type="button"
                             onClick={() =>
                               set(
                                 'redemptions',
                                 on ? spec.redemptions.filter((x) => x !== r) : [...spec.redemptions, r],
                               )
                             }
-                            className={`rounded-full border px-4 py-1.5 text-sm transition ${
+                            className={`rounded-lg border px-4 py-1.5 text-sm transition ${
                               on ? 'border-up/60 bg-up/10 text-up' : 'border-edge text-fog hover:border-fog'
                             }`}
                           >
@@ -294,8 +380,8 @@ export default function HubBuilder() {
                     </div>
                   </div>
                   <p className="text-xs leading-relaxed text-fog md:col-span-2">
-                    Your coin is a closed-loop community reward — earned through contribution, redeemed
-                    inside your economy. Never market it as an investment.
+                    Closed-loop loyalty — not an investment. When helpers redeem for discounts, that
+                    reduces net cash available for any later revenue-share pool.
                   </p>
                 </div>
               )}
@@ -303,7 +389,7 @@ export default function HubBuilder() {
               {step === 3 && (
                 <div>
                   <span className="mb-3 block font-mono text-xs text-fog">
-                    what help does your agent need? (reward per completion, in your coin)
+                    tasks we will configure (reward per confirmed completion — human or AI)
                   </span>
                   <div className="space-y-2.5">
                     {TASK_DEFS.map((t) => {
@@ -316,6 +402,7 @@ export default function HubBuilder() {
                           }`}
                         >
                           <button
+                            type="button"
                             onClick={() =>
                               set('tasks', { ...spec.tasks, [t.key]: { ...st, enabled: !st.enabled } })
                             }
@@ -344,23 +431,35 @@ export default function HubBuilder() {
                       )
                     })}
                   </div>
-                  <div className="mt-6">
-                    <span className="mb-2 block font-mono text-xs text-fog">
-                      referral sales reward: <span className="text-up">{spec.referralPct}%</span> of every
-                      sale a member brings
-                    </span>
-                    <input
-                      type="range"
-                      min="0"
-                      max="20"
-                      value={spec.referralPct}
-                      onChange={(e) => set('referralPct', Number(e.target.value))}
-                      className="w-full accent-up"
-                    />
-                    <p className="mt-1.5 text-xs text-fog">
-                      The wizard slider goes to 20% — you can raise it further (and enable two-tier earn)
-                      from the founder admin panel after setup.
-                    </p>
+                  <div className="mt-8 grid gap-6 md:grid-cols-2">
+                    <div>
+                      <span className="mb-2 block font-mono text-xs text-fog">
+                        referral tier 1: <span className="text-up">{spec.referralPct}%</span>
+                      </span>
+                      <input
+                        type="range"
+                        min="0"
+                        max="20"
+                        value={spec.referralPct}
+                        onChange={(e) => set('referralPct', Number(e.target.value))}
+                        className="w-full accent-up"
+                      />
+                      <p className="mt-1 text-xs text-fog">Share of a sale when a member’s recruit buys.</p>
+                    </div>
+                    <div>
+                      <span className="mb-2 block font-mono text-xs text-fog">
+                        referral tier 2: <span className="text-up">{spec.referralTier2Pct}%</span>
+                      </span>
+                      <input
+                        type="range"
+                        min="0"
+                        max="10"
+                        value={spec.referralTier2Pct}
+                        onChange={(e) => set('referralTier2Pct', Number(e.target.value))}
+                        className="w-full accent-up"
+                      />
+                      <p className="mt-1 text-xs text-fog">Second-degree — when their recruits’ recruits earn.</p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -369,55 +468,54 @@ export default function HubBuilder() {
                 <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
                   <div className="relative min-w-0 rounded-xl border border-edge bg-ink">
                     <button
+                      type="button"
                       onClick={async () => {
-                        if (await copyText(specText)) {
+                        if (await copyText(pack)) {
                           setCopied(true)
                           setTimeout(() => setCopied(false), 1800)
                         }
                       }}
                       className="absolute right-3 top-3 rounded-md border border-bright/15 bg-ink px-2.5 py-1 font-mono text-xs text-bright/70 transition hover:text-bright"
                     >
-                      {copied ? 'copied' : 'copy spec'}
+                      {copied ? 'copied' : 'copy pack'}
                     </button>
                     <pre className="max-h-96 overflow-auto p-5 font-mono text-xs leading-relaxed text-bright/75">
-                      {specText}
+                      {pack}
                     </pre>
                   </div>
                   <div className="flex flex-col gap-3">
                     <button
                       type="button"
                       onClick={() =>
-                        runGated(() => window.open(WIZARD_URL, '_blank', 'noopener,noreferrer'))
+                        runGated(() => {
+                          setQueued(true)
+                        })
                       }
                       className="rounded-xl bg-up px-5 py-4 text-center font-bold text-bright transition hover:bg-up-dim"
                     >
-                      Do it yourself:
-                      <br />
-                      open the wizard →
+                      {queued ? 'Request queued ✓' : 'Submit — we build your hub →'}
                     </button>
-                    <a
-                      href={COMMUNITY_URL}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded-xl border border-edge bg-panel-2 px-5 py-4 text-center text-sm font-semibold transition hover:border-fog"
-                    >
-                      Done for you: post your spec in the community and earn your setup →
-                    </a>
+                    {queued && (
+                      <p className="text-xs leading-relaxed text-up">
+                        Provision pack ready. We&rsquo;ll generate the Slyk, configure SlykPay, tasks, and
+                        referrals, then transfer the hub to {spec.operatorEmail || 'your email'}.
+                      </p>
+                    )}
                     {!hasAccess && (
-                      <p className="text-xs text-warn">Hub access required to open the setup wizard.</p>
+                      <p className="text-xs text-warn">Hub access required to submit a provision request.</p>
                     )}
                     <p className="text-xs leading-relaxed text-fog">
-                      Or paste the spec into your own agent — it has everything needed to run the wizard
-                      values and operate the hub via the Slyk API.
+                      You never walk the public wizard. We generate everything and hand you the keys —
+                      dashboard, API access, and a bootstrap prompt for your agent.
                     </p>
                   </div>
                 </div>
               )}
 
-              {/* nav buttons */}
               {step < 4 && (
                 <div className="mt-8 flex items-center justify-between">
                   <button
+                    type="button"
                     onClick={() => setStep((s) => Math.max(0, s - 1))}
                     disabled={step === 0}
                     className="rounded-lg border border-edge px-5 py-2.5 text-sm font-semibold text-fog transition enabled:hover:border-fog enabled:hover:text-ink disabled:opacity-40"
@@ -425,6 +523,7 @@ export default function HubBuilder() {
                     ← Back
                   </button>
                   <button
+                    type="button"
                     onClick={() =>
                       runGated(() => {
                         if (canNext) setStep((s) => s + 1)
@@ -433,14 +532,18 @@ export default function HubBuilder() {
                     disabled={!canNext}
                     className="rounded-lg bg-up px-6 py-2.5 text-sm font-bold text-bright transition enabled:hover:bg-up-dim disabled:opacity-40"
                   >
-                    {step === 3 ? (hasAccess ? 'Generate my spec →' : 'Unlock to generate spec →') : 'Next →'}
+                    {step === 3 ? (hasAccess ? 'Build my provision pack →' : 'Unlock to continue →') : 'Next →'}
                   </button>
                 </div>
               )}
               {step === 4 && (
                 <div className="mt-8">
                   <button
-                    onClick={() => setStep(3)}
+                    type="button"
+                    onClick={() => {
+                      setStep(3)
+                      setQueued(false)
+                    }}
                     className="rounded-lg border border-edge px-5 py-2.5 text-sm font-semibold text-fog transition hover:border-fog hover:text-ink"
                   >
                     ← Edit answers

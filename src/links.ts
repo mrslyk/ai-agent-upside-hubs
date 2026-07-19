@@ -1,3 +1,4 @@
+/** Ops fallback only — product path is launch intake (#build), not the public wizard. */
 export const WIZARD_URL =
   'https://app.slyk.io/wizard/sign-up/get-started?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Stw4dhzw2HPZqGgKB6m7rEjvmwZzWS1Zn1nklEwY2pM&locale=en&referral=tim'
 

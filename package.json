@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "vite",
     "dev:api": "tsx --env-file=.env server/dev.ts",
-    "dev:full": "npx concurrently -k \"vite\" \"tsx server/dev.ts\"",
+    "dev:full": "npx concurrently -k \"vite\" \"tsx --env-file=.env server/dev.ts\"",
     "build": "tsc -b && vite build",
     "build:mcp": "cd mcp-server && npm install && npm run build",
+    "stripe:setup": "node scripts/stripe-setup.mjs",
     "lint": "oxlint",
     "preview": "vite preview"
   },

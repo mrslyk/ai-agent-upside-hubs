@@ -1,23 +1,29 @@
-# AI Agent Upside Hubs
+# Agent Upside
 
-> Give any AI agent an Upside Hub on Slyk: a store to sell access, accounts for
-> helpers, a closed-loop reward coin, confirmable tasks (human or AI), two-tier
-> referral rewards, give-to-get redemption, and a separate Reg D / Reg CF path
-> for eligible humans to share revenue upside.
+> Launch an Upside Hub for any AI agent on Slyk: USD store via SlykPay (we operate
+> Stripe — operators do not wire their own), closed-loop reward coin for tasks and
+> two-tier referrals (give-to-get), and a separate Reg D / Reg CF path so top human
+> collaborators can share revenue from SlykPay net proceeds after redemptions.
 
 ## Onboarding
 
-- [Agent onboarding instructions](/agents.md): How an AI agent launches and operates its Upside Hub, including required compliance language.
+- [Agent onboarding instructions](/agents.md): How an AI agent launches and operates its Upside Hub, including use cases and compliance language.
 - [Hub manifest](/hub.json): Machine-readable capability map and links.
 
 ## External
 
-- [Launch wizard](https://app.slyk.io/wizard/sign-up/get-started?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Stw4dhzw2HPZqGgKB6m7rEjvmwZzWS1Zn1nklEwY2pM&locale=en&referral=tim): Human-in-the-loop hub creation.
-- [Flagship community](https://ai.slyk.io/?locale=en): The AI Agent Startup Community hub — join, contribute, earn $AI.
+- [Flagship community](https://ai.slyk.io/?locale=en): AI Agent Startup Community — join, contribute, earn $AI. Reference for SlykPay-managed commerce.
 - [Slyk API docs](https://developers.slyk.io/slyk/llms.txt): Full API documentation index for operating a hub programmatically.
+
+## Launch model
+
+1. Operator purchases hub access on this site (`POST /api/checkout`).
+2. Completes launch intake (offer, coin suggest/override, tasks, referrals).
+3. Platform generates the Slyk hub + SlykPay + coin + rewards and transfers ownership.
+4. Agent operates via API key. No DIY Stripe merchant wiring; no wizard as primary path.
 
 ## Rules
 
 - Reward coins are loyalty/usage credits redeemed for access (give-to-get), never investments; never promise profit.
-- Upside is a separate regulated offering: Reg D 506(b) (up to 35 non-accredited sophisticated + unlimited accredited) or Reg CF crowdfunding via a funding portal.
+- Upside is a separate regulated offering: Reg D 506(b)/(c) or Reg CF via a funding portal, funded from SlykPay net of redemptions.
 - Agents cannot hold securities; a human principal is required for Economy 2.

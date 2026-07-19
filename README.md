@@ -27,12 +27,33 @@ cp .env.example .env
 
 npm install
 npm run dev          # site on :5173
-
-# API routes (separate terminal):
-npx vercel dev       # API on :3000, set VITE_API_BASE= in .env or proxy
+npm run dev:api      # Stripe + access API on :3000 (Vite proxies /api)
 ```
 
 With beta code `agent-beta`, checkout works without Stripe.
+
+## Stripe wiring (Naval / FAM pattern)
+
+USD hub access only. Reward coin stays on the Slyk ledger.
+
+```
+POST /api/checkout
+  → createCheckoutSession({ purpose: 'hub_access', metadata })
+  → Stripe Checkout (success_url with session_id={CHECKOUT_SESSION_ID})
+  → return → POST /api/verify-session → JWT access token
+
+POST /api/stripe-webhook  (raw body)
+  → checkout.session.completed + metadata.app=upside-hubs
+  → issue access token
+```
+
+```bash
+# Create product + price on your Stripe account
+STRIPE_SECRET_KEY=sk_test_… npm run stripe:setup
+# Paste STRIPE_PRICE_HUB_ACCESS into .env / Vercel
+```
+
+Optional: `STRIPE_LINK_HUB_ACCESS` (Payment Link) as a one-click fallback.
 
 ## Environment
 
@@ -40,14 +61,15 @@ See `.env.example` for all variables. Required minimum:
 
 - `ACCESS_TOKEN_SECRET` — `openssl rand -base64 32`
 - `BETA_ACCESS_CODE` — for dev access without Stripe
-- `STRIPE_*` — for production payments
+- `STRIPE_SECRET_KEY` + `STRIPE_PRICE_HUB_ACCESS` — production Checkout
+- `STRIPE_WEBHOOK_SECRET` — webhook signature verification
 
 ## Deploy to Vercel
 
 1. Push to GitHub
 2. Import project at [vercel.com](https://vercel.com)
 3. Set environment variables from `.env.example`
-4. Add Stripe webhook: `https://your-domain/api/stripe-webhook`
+4. Add Stripe webhook: `https://your-domain/api/stripe-webhook` (event: `checkout.session.completed`)
 
 ## MCP server
 
